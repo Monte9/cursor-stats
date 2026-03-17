@@ -104,10 +104,15 @@ export function parseCSV(file: File): Promise<ParseResult | ParseError> {
             continue;
           }
 
-          // Parse cost
+          // Parse cost — "-" and "Free" both mean no monetary cost
           const costRaw = raw["Cost"];
           let cost: number | null = null;
-          if (costRaw === "-" || costRaw === "" || costRaw === undefined) {
+          if (
+            costRaw === "-" ||
+            costRaw === "Free" ||
+            costRaw === "" ||
+            costRaw === undefined
+          ) {
             cost = null;
             noCostCount++;
           } else {
