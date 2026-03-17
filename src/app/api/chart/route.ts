@@ -27,6 +27,7 @@ Rules:
 - For costs, set yLabel to "$". For counts, set yLabel to "requests" or "tokens".
 - For stat type: set statKey to the appropriate summary key. The client will format and display the real value.
 - For off-topic or unanswerable questions: use chartType "stat" WITHOUT a statKey. Set title to "Can't answer that" and insight to a helpful redirect like "Try asking about your models, costs, or usage patterns."
+- You CANNOT create multi-series charts (e.g. "model A vs model B over time"). Each chart shows one data series. If asked to compare things over time, either show the most useful single-series view (e.g. byMonth cost) or use a stat type explaining the limitation and suggesting an alternative question.
 
 Examples:
 
