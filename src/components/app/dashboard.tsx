@@ -238,25 +238,66 @@ export function Dashboard({
             </ChartCard>
           </div>
 
-          {/* Row 3: Most Expensive Request — full width */}
-          {stats.mostExpensiveRequest && (
+          {/* Row 3: Fun Stats — 3 horizontal cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Most Expensive Request */}
+            {stats.mostExpensiveRequest && (
+              <ChartCard>
+                <div className="text-center py-4">
+                  <p className="text-zinc-400 text-sm">Priciest Request</p>
+                  <p className="mt-2">
+                    <span className="text-4xl font-bold text-orange-500">
+                      {formatCost(stats.mostExpensiveRequest.cost)}
+                    </span>
+                  </p>
+                  <p className="text-zinc-500 text-xs mt-2">
+                    {stats.mostExpensiveRequest.model}
+                  </p>
+                  <p className="text-zinc-600 text-xs mt-0.5">
+                    {stats.mostExpensiveRequest.date.toLocaleDateString()}
+                  </p>
+                </div>
+              </ChartCard>
+            )}
+
+            {/* Longest Coding Streak */}
             <ChartCard>
-              <div className="text-center py-6">
-                <p className="text-zinc-400 text-sm">Most Expensive Single Request</p>
+              <div className="text-center py-4">
+                <p className="text-zinc-400 text-sm">Longest Coding Streak</p>
                 <p className="mt-2">
-                  <span className="text-5xl font-bold text-orange-500">
-                    {formatCost(stats.mostExpensiveRequest.cost)}
+                  <span className="text-4xl font-bold text-zinc-50">
+                    {stats.longestCodingStreak}h
                   </span>
                 </p>
-                <p className="text-zinc-400 text-sm mt-3">
-                  {stats.mostExpensiveRequest.model}
+                <p className="text-zinc-500 text-xs mt-2">
+                  consecutive hours
                 </p>
-                <p className="text-zinc-500 text-xs mt-1">
-                  {stats.mostExpensiveRequest.date.toLocaleDateString()} at {stats.mostExpensiveRequest.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <p className="text-zinc-600 text-xs mt-0.5">
+                  without a break
                 </p>
               </div>
             </ChartCard>
-          )}
+
+            {/* Busiest Day */}
+            {stats.busiestDay && (
+              <ChartCard>
+                <div className="text-center py-4">
+                  <p className="text-zinc-400 text-sm">Busiest Day</p>
+                  <p className="mt-2">
+                    <span className="text-4xl font-bold text-zinc-50">
+                      {formatNumber(stats.busiestDay.requests)}
+                    </span>
+                  </p>
+                  <p className="text-zinc-500 text-xs mt-2">
+                    requests in one day
+                  </p>
+                  <p className="text-zinc-600 text-xs mt-0.5">
+                    {stats.busiestDay.date}
+                  </p>
+                </div>
+              </ChartCard>
+            )}
+          </div>
         </motion.div>
       </div>
     </motion.div>

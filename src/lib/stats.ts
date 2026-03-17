@@ -27,6 +27,8 @@ export interface UsageSummary {
   cacheHitRate: number;
   errorRate: number;
   mostExpensiveRequest: { cost: number; model: string; date: Date } | null;
+  longestCodingStreak: number; // consecutive hours
+  busiestDay: { date: string; requests: number } | null;
 }
 
 function formatDuration(ms: number): string {
@@ -189,6 +191,34 @@ export function computeStats(data: CursorUsageRow[]): UsageSummary {
       }
     : null;
 
+  // Longest coding streak (consecutive hours with activity)
+  const hoursActive = new Set<string>();
+  for (const r of data) {
+    const d = r.date;
+    hoursActive.add(
+      `${d.getFullYear()}-${String(d.getMonth()).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}`
+    );
+  }
+  const sortedHours = Array.from(hoursActive).sort();
+  let longestCodingStreak = sortedHours.length > 0 ? 1 : 0;
+  let currentStreak = 1;
+  for (let i = 1; i < sortedHours.length; i++) {
+    const prev = new Date(sortedHours[i - 1].replace(" ", "T") + ":00:00");
+    const curr = new Date(sortedHours[i].replace(" ", "T") + ":00:00");
+    if (curr.getTime() - prev.getTime() === 3600000) {
+      currentStreak++;
+      longestCodingStreak = Math.max(longestCodingStreak, currentStreak);
+    } else {
+      currentStreak = 1;
+    }
+  }
+
+  // Busiest day
+  const busiestDay =
+    byDay.length > 0
+      ? byDay.reduce((max, d) => (d.requests > max.requests ? d : max))
+      : null;
+
   const errorAborted = data.filter(
     (r) => r.kind !== "On-Demand"
   ).length;
@@ -214,5 +244,7 @@ export function computeStats(data: CursorUsageRow[]): UsageSummary {
     cacheHitRate,
     errorRate,
     mostExpensiveRequest: mostExpensiveRequestStat,
+    longestCodingStreak,
+    busiestDay,
   };
 }
