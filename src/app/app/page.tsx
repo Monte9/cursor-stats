@@ -13,17 +13,19 @@ interface AppState {
   data: CursorUsageRow[];
   warnings: string[];
   skippedRows: number;
+  fileName: string;
 }
 
 export default function AppPage() {
   const [appState, setAppState] = useState<AppState | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
-  const handleUpload = useCallback((result: ParseResult) => {
+  const handleUpload = useCallback((result: ParseResult, fileName: string) => {
     setAppState({
       data: result.data,
       warnings: result.warnings,
       skippedRows: result.skippedRows,
+      fileName,
     });
   }, []);
 
@@ -42,6 +44,7 @@ export default function AppPage() {
           skippedRows={appState.skippedRows}
           isDemo={false}
           onReset={handleReset}
+          fileName={appState.fileName}
         />
       </AnimatePresence>
     );

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { parseCSV, ParseResult } from "@/lib/csv-parser";
 
 interface UploadZoneProps {
-  onUpload: (result: ParseResult) => void;
+  onUpload: (result: ParseResult, fileName: string) => void;
 }
 
 export function UploadZone({ onUpload }: UploadZoneProps) {
@@ -28,7 +28,7 @@ export function UploadZone({ onUpload }: UploadZoneProps) {
       }
 
       setIsProcessing(false);
-      onUpload(result);
+      onUpload(result, file.name);
     },
     [onUpload]
   );

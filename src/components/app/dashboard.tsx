@@ -32,6 +32,27 @@ interface DashboardProps {
   skippedRows: number;
   isDemo: boolean;
   onReset: () => void;
+  fileName?: string;
+}
+
+function formatDateLong(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+// Add ordinal suffix (1st, 2nd, 3rd, etc)
+function formatDateOrdinal(date: Date): string {
+  const month = date.toLocaleDateString("en-US", { month: "long" });
+  const day = date.getDate();
+  const year = date.getFullYear();
+  const suffix = day === 1 || day === 21 || day === 31 ? "st"
+    : day === 2 || day === 22 ? "nd"
+    : day === 3 || day === 23 ? "rd"
+    : "th";
+  return `${month} ${day}${suffix}, ${year}`;
 }
 
 export function Dashboard({
@@ -40,6 +61,7 @@ export function Dashboard({
   skippedRows,
   isDemo,
   onReset,
+  fileName,
 }: DashboardProps) {
   const stats = useMemo(() => computeStats(data), [data]);
 
@@ -69,16 +91,31 @@ export function Dashboard({
         )}
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-8">
           <div>
-            <h1 className="font-serif text-3xl sm:text-4xl text-zinc-50">
-              Your Dashboard
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="font-serif text-3xl sm:text-4xl text-zinc-50">
+                Your Dashboard
+              </h1>
+              {/* Warning indicator */}
+              {warnings.length > 0 && (
+                <span
+                  className="text-lg cursor-help"
+                  title={warnings.join("\n")}
+                >
+                  ⚠️
+                </span>
+              )}
+            </div>
             <p className="text-zinc-400 text-sm mt-1">
-              {stats.dateRange.start.toLocaleDateString()} — {stats.dateRange.end.toLocaleDateString()}
-              <span className="text-zinc-600 ml-2">·</span>
-              <span className="text-zinc-500 ml-2">{stats.dateRangeDuration}</span>
+              {formatDateOrdinal(stats.dateRange.start)} to {formatDateOrdinal(stats.dateRange.end)}
             </p>
+            {/* File reference */}
+            {fileName && (
+              <p className="text-zinc-600 text-xs mt-1 font-mono">
+                📄 {fileName}
+              </p>
+            )}
           </div>
           {!isDemo && (
             <button
@@ -89,17 +126,6 @@ export function Dashboard({
             </button>
           )}
         </div>
-
-        {/* Warnings */}
-        {(warnings.length > 0 || skippedRows > 0) && (
-          <div className="mb-6 px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-lg">
-            {warnings.map((w, i) => (
-              <p key={i} className="text-zinc-400 text-sm">
-                ⚠️ {w}
-              </p>
-            ))}
-          </div>
-        )}
 
         {/* Cards grid */}
         <motion.div
