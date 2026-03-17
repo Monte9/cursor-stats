@@ -226,7 +226,7 @@ Refactor the `/app` page to manage state between upload and dashboard views:
 └── Dashboard view → "Upload new" resets to upload zone
 ```
 
-State management: `useState` with a `CursorUsageRow[] | null`. When null, show upload. When populated, show dashboard.
+State management: `useState` with a `{ data: CursorUsageRow[]; warnings: string[]; skippedRows: number } | null`. When null, show upload. When populated, show dashboard. Pass `warnings` and `skippedRows` to the dashboard component for the info bar.
 
 Keep the "How to export" collapsible guide visible in the upload view (already exists). Hide it in dashboard view.
 
