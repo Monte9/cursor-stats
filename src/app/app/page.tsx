@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CursorUsageRow, ParseResult } from "@/lib/csv-parser";
 import { DEMO_DATA } from "@/lib/demo-data";
@@ -23,10 +23,11 @@ function AppContent() {
   const [appState, setAppState] = useState<AppState | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const hasReset = useRef(false);
 
-  // Load demo data on mount if demo mode
+  // Load demo data on mount if demo mode (but not after a reset)
   useEffect(() => {
-    if (isDemo && !appState) {
+    if (isDemo && !appState && !hasReset.current) {
       setAppState({
         data: DEMO_DATA,
         warnings: [],
@@ -37,6 +38,8 @@ function AppContent() {
   }, [isDemo, appState]);
 
   const handleUpload = useCallback((result: ParseResult) => {
+    hasReset.current = false;
+    setIsDemoMode(false);
     setAppState({
       data: result.data,
       warnings: result.warnings,
@@ -45,13 +48,12 @@ function AppContent() {
   }, []);
 
   const handleReset = useCallback(() => {
+    hasReset.current = true;
     setAppState(null);
     setIsDemoMode(false);
-    // Clear demo param from URL so upload works
-    if (isDemo) {
-      router.replace("/app");
-    }
-  }, [isDemo, router]);
+    // Clear demo param from URL
+    router.replace("/app");
+  }, [router]);
 
   // Dashboard view
   if (appState) {
