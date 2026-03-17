@@ -6,20 +6,13 @@ import { HeroChart } from "./hero-chart";
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 py-20 overflow-hidden">
-      {/* Background image with overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/hero-bg.png')" }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/70 via-zinc-950/60 to-zinc-950" />
-
-      {/* Orange radial glow */}
+    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 py-20 overflow-hidden bg-zinc-950">
+      {/* Orange radial glow — sole hero background */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at 50% 40%, rgba(249, 115, 22, 0.12) 0%, transparent 55%)",
+            "radial-gradient(ellipse at 50% 40%, rgba(249, 115, 22, 0.15) 0%, transparent 55%)",
         }}
       />
 
