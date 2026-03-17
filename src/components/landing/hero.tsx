@@ -13,7 +13,16 @@ export function Hero() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/hero-bg.png')" }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/80 via-zinc-950/70 to-zinc-950" />
+      <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/70 via-zinc-950/60 to-zinc-950" />
+
+      {/* Orange radial glow */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 40%, rgba(249, 115, 22, 0.12) 0%, transparent 55%)",
+        }}
+      />
 
       {/* Content */}
       <motion.div
@@ -46,13 +55,13 @@ export function Hero() {
         <div className="mt-10 flex flex-col sm:flex-row gap-4">
           <Link
             href="/app"
-            className="px-8 py-3 bg-orange-500 hover:bg-orange-400 text-zinc-950 font-medium rounded-lg transition-colors"
+            className="px-10 py-3.5 bg-orange-500 hover:bg-orange-400 text-zinc-950 font-semibold rounded-xl shadow-[0_0_24px_rgba(249,115,22,0.3)] hover:shadow-[0_0_32px_rgba(249,115,22,0.4)] hover:scale-[1.02] transition-all duration-200"
           >
             Get Started
           </Link>
           <Link
             href="/app?demo=true"
-            className="px-8 py-3 border border-zinc-700 hover:border-zinc-500 text-zinc-50 font-medium rounded-lg transition-colors"
+            className="px-10 py-3.5 border border-zinc-500 hover:border-zinc-400 hover:bg-zinc-800/60 text-zinc-50 font-semibold rounded-xl transition-all duration-200"
           >
             Try Demo
           </Link>

@@ -68,7 +68,7 @@ export function HowItWorks() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section className="py-24 px-4 bg-zinc-950">
+    <section className="py-16 px-4 bg-zinc-900">
       <div className="max-w-6xl mx-auto">
         <h2 className="font-serif text-3xl sm:text-4xl text-zinc-50 text-center mb-16">
           How It Works

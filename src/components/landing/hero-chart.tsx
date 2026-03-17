@@ -1,6 +1,6 @@
 "use client";
 
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { heroChartData } from "@/components/charts/mock-data";
 
 export function HeroChart() {
@@ -27,6 +27,15 @@ export function HeroChart() {
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => `${value}`}
+          />
+          <Tooltip
+            contentStyle={{
+              background: "#18181b",
+              border: "1px solid #3f3f46",
+              borderRadius: "8px",
+            }}
+            labelStyle={{ color: "#fafafa" }}
+            itemStyle={{ color: "#f97316" }}
           />
           <Area
             type="monotone"

@@ -39,7 +39,7 @@ function AppContent() {
 
       {/* Drop zone (visual only) */}
       <div className="w-full max-w-md">
-        <div className="border-2 border-dashed border-zinc-700 rounded-xl p-12 text-center cursor-not-allowed opacity-60">
+        <div className="border-2 border-dashed border-zinc-700 rounded-xl p-12 text-center cursor-not-allowed">
           <div className="text-4xl mb-4">
             <span role="img" aria-label="upload">
               📤
@@ -51,7 +51,7 @@ function AppContent() {
           <p className="text-zinc-500 text-sm">or click to browse</p>
         </div>
         <p className="text-zinc-500 text-sm text-center mt-4">
-          Coming soon — upload functionality in Phase 2
+          Upload coming soon — we&apos;re putting the finishing touches on this
         </p>
       </div>
 

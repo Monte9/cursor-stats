@@ -9,6 +9,7 @@ import {
   Line,
   XAxis,
   YAxis,
+  Tooltip,
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
@@ -36,6 +37,16 @@ function ModelUsageChart() {
               width={110}
               tickLine={false}
               axisLine={false}
+            />
+            <Tooltip
+              contentStyle={{
+                background: "#18181b",
+                border: "1px solid #3f3f46",
+                borderRadius: "8px",
+              }}
+              labelStyle={{ color: "#fafafa" }}
+              itemStyle={{ color: "#f97316" }}
+              cursor={{ fill: "rgba(249, 115, 22, 0.08)" }}
             />
             <Bar
               dataKey="requests"
@@ -72,6 +83,16 @@ function DailyCostChart() {
               axisLine={false}
               tickFormatter={(value) => `$${value}`}
             />
+            <Tooltip
+              contentStyle={{
+                background: "#18181b",
+                border: "1px solid #3f3f46",
+                borderRadius: "8px",
+              }}
+              labelStyle={{ color: "#fafafa" }}
+              itemStyle={{ color: "#f97316" }}
+              formatter={(value) => [`$${value}`, "Cost"]}
+            />
             <Line
               type="monotone"
               dataKey="cost"
@@ -92,7 +113,7 @@ export function ExampleCharts() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section className="py-24 px-4 bg-zinc-950">
+    <section className="py-16 px-4 bg-zinc-950">
       <div className="max-w-6xl mx-auto">
         <h2 className="font-serif text-3xl sm:text-4xl text-zinc-50 text-center mb-4">
           See Your Usage at a Glance
