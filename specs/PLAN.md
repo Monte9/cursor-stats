@@ -2,93 +2,106 @@
 
 > Visualize your Cursor AI usage patterns. Upload a CSV, ask questions, get interactive charts.
 
-**Repo:** [ashokosnexus/cursor-stats](https://github.com/ashokosnexus/cursor-stats)
-**Deploy:** cursorstats.vercel.app
-**Stack:** Next.js 15, Tailwind CSS, shadcn/ui, Recharts, Framer Motion, Vercel AI SDK
+**Repo:** [ashokosnexus/cursor-stats](https://github.com/ashokosnexus/cursor-stats) (private)
+**Live:** https://cursorstats.vercel.app
+**Stack:** Next.js 16, Tailwind CSS 4, Recharts, Framer Motion, pnpm
+**Domain:** cursorstats.com (pending purchase)
 
 ---
 
-## Phases
+## Completed Phases
 
-### Phase 0: Project Setup
-- Init Next.js app via pnpm (App Router, TypeScript, Tailwind)
-- `.nvmrc` + `engines` field (Node 20+)
-- Deploy hello world to Vercel
-- Confirm CI/CD pipeline works (push → deploy)
-- **Spec:** [phase-0-setup.md](./phase-0-setup.md)
+### Phase 0: Project Setup ✅
+Next.js 16 + TypeScript + Tailwind 4, Vercel deploy, CI/CD pipeline.
+**Spec:** [phase-0-setup.md](./phase-0-setup.md)
 
-### Phase 1: Landing Page
-- Init shadcn/ui (deferred from Phase 0 — install when needed)
-- Hero section with atmospheric gradient + modern serif typography
-- Clear value prop: "See what your AI usage really looks like"
-- 3-step visual: Upload → Ask → Visualize
-- Animated chart preview (static/mock data)
-- Collapsible "How to export from Cursor" guide
-- CTA: "Get Started" → redirects to `/app`
-- Dark mode, responsive
-- **Spec:** phase-1-landing.md (TBD)
+### Phase 1: Landing Page ✅
+Hero with orange glow, How It Works, example charts, trust badge, sticky nav, `/app` upload page, `/demo` route. Two design review rounds applied.
+**Spec:** [phase-1-landing.md](./phase-1-landing.md)
 
-### Phase 2: CSV Upload + Summary
-- Drag & drop upload zone with animation
-- Client-side CSV parsing (papaparse)
-- Validate Cursor export format (expected columns, data types)
-- Instant summary dashboard on upload:
-  - Total cost, date range, request count
-  - Model breakdown (bar chart)
-  - Timeline of activity
-- Store parsed data in React state (no server persistence)
-- **Spec:** phase-2-upload.md (TBD)
+### Phase 2: CSV Upload + Summary Dashboard ✅
+Client-side CSV parsing (papaparse), 20+ computed stats, 5 interactive chart cards (glassmorphism, macOS dots, watermark), demo mode with 574-row sample data. Cost-focused insights: model breakdown by spend, cost per request efficiency, priciest request, longest coding streak, busiest day.
+**Spec:** [phase-2-upload.md](./phase-2-upload.md)
+
+---
+
+## Upcoming Phases
 
 ### Phase 3: Prompt → Chart Engine
-- Vercel AI SDK + Next.js API route
-- LLM: Claude 4.6 Sonnet (primary), Claude 4.6 Opus (fallback for complex queries)
-- Rate limiting (per-IP or session-based)
-- Pipeline: user prompt + CSV schema + aggregated stats → structured chart spec JSON
-- Pre-seeded suggestion prompts as chips
-- Chat-style history of past queries in sidebar
-- **Spec:** phase-3-prompt-engine.md (TBD)
+The core differentiator — let users ask natural language questions about their data and get dynamic charts.
 
-### Phase 4: Visualization Layer
-- Recharts for chart rendering (bar, line, pie, scatter, heatmap, timeline)
-- Framer Motion for chart mount/unmount/transition animations
-- Interactive: hover tooltips, click-to-drill-down
-- LLM picks best chart type per query
-- Export chart as image (html2canvas or similar)
-- **Spec:** phase-4-visualization.md (TBD)
+**What this means:**
+- Text input at top of dashboard: "What's my most expensive hour of the day?" → generates a chart
+- Vercel AI SDK + Next.js API route → Claude 4.6 Sonnet (primary), Opus (fallback)
+- LLM receives: CSV schema + `UsageSummary` stats (never raw rows) → returns structured chart spec JSON
+- Recharts renders the spec dynamically (chart type, data mapping, colors, title)
+- Pre-seeded suggestion prompts as chips below the input
+- Chat-style history: previous queries stack below the input, each with its chart
+- Rate limiting (per-IP or session-based) since we're paying for the LLM
 
-### Phase 4.5: Data Persistence (Follow-up)
+**Key design question:** Do prompt-generated charts replace the static dashboard, or supplement it? Recommendation: keep the static dashboard as a "home" view, add a "Ask a question" section above it where dynamic charts appear. The static charts prove the product immediately; the prompt charts show depth.
+
+**New dependencies:** `ai` (Vercel AI SDK), `@ai-sdk/anthropic`
+**New files:** API route (`src/app/api/chart/route.ts`), prompt input component, dynamic chart renderer
+**Spec:** phase-3-prompt-engine.md (TBD)
+
+### Phase 4: Chart Export + Sharing
+Make the glassmorphism chart cards downloadable and shareable.
+
+**What this means:**
+- Small download icon on each chart card → saves as PNG (html2canvas or dom-to-image)
+- The watermark (`cursorstats.com`) is already there — becomes a viral loop
+- "Share your stats" — generates a shareable link or image collage
+- OG image generation for social cards (dynamic, showing key stats)
+
+**Why this matters:** Every shared chart card is free marketing. The macOS dots + watermark design was built for this.
+
+**Spec:** phase-4-export.md (TBD)
+
+### Phase 4.5: Data Persistence
 - Store parsed CSV in `sessionStorage` so page refresh keeps data within the same tab
-- Clear on tab close (not `localStorage` — no long-term storage)
+- Clear on tab close (privacy-preserving)
 - Enables back/forward navigation without re-upload
+- Small quality-of-life improvement
 
 ### Phase 5: Polish & Launch
-- OG image / Twitter card for social sharing
-- "Share my stats" (anonymized snapshot)
-- Mobile responsive pass
-- Performance audit (client-side parsing, bundle size)
-- Launch on cursorstats.vercel.app
+- OG image / Twitter card (dynamic stats preview)
+- Mobile responsive audit (dashboard on phone)
+- Performance audit (bundle size, lazy loading charts)
+- SEO: sitemap, robots.txt, structured data
+- Buy + connect cursorstats.com domain
+- Launch post: share on X, Reddit r/cursor, HN Show
 
 ---
 
-## Architecture Decisions
+## Architecture
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Framework | Next.js 15 (App Router) | Vercel-native, API routes, RSC |
-| Styling | Tailwind + shadcn/ui | Fast iteration, consistent design system |
-| Charts | Recharts | React-native, built-in animation, composable |
-| Animations | Framer Motion | Best React animation library, layout animations |
-| CSV Parsing | papaparse (client-side) | No data leaves browser, privacy-first |
-| LLM | Vercel AI SDK → Anthropic | Streaming, structured output, clean DX |
-| Hosting | Vercel | Zero-config deploys, edge functions |
+| Layer | Choice | Notes |
+|-------|--------|-------|
+| Framework | Next.js 16 (App Router) | Vercel-native, API routes, RSC |
+| Styling | Tailwind CSS 4 | No shadcn — custom components |
+| Charts | Recharts | React-native, animation, composable |
+| Animations | Framer Motion | Scroll reveal, transitions, chart mount |
+| CSV Parsing | papaparse (client-side) | Privacy-first, no data leaves browser |
+| LLM | Vercel AI SDK → Anthropic (Phase 3) | Streaming, structured output |
+| Hosting | Vercel | Auto-deploy from GitHub |
+| Package Manager | pnpm | Fast, disk efficient |
 
 ## Privacy Model
-
 - CSV data stays client-side only
-- Only aggregated stats + schema sent to LLM (not raw CSV rows)
-- No data persistence — refresh = gone
+- Only aggregated stats + schema sent to LLM (Phase 3, never raw rows)
+- No data persistence by default (sessionStorage opt-in in Phase 4.5)
 - No analytics/tracking beyond Vercel defaults
+
+## Routes
+| Route | Purpose |
+|-------|---------|
+| `/` | Landing page (marketing) |
+| `/app` | Upload CSV → dashboard |
+| `/demo` | Demo dashboard with sample data |
+| `/api/chart` | LLM chart generation endpoint (Phase 3) |
 
 ---
 
-*Owner: Ash (ashokosnexus) | Collaborator: Monte*
+*Owner: Ash (ashokosnexus) · Collaborator: Monte*
+*Last updated: 2026-03-17*
