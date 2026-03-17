@@ -101,6 +101,8 @@ Make the glassmorphism chart cards downloadable and shareable.
 - **Data Persistence:** Store parsed CSV in `sessionStorage` so page refresh keeps data within same tab
 - **Multi-file comparison:** Upload two CSVs (e.g. week-over-week) and see diff
 - **Team view:** Multi-user CSV with per-user breakdowns
+- **Community Leaderboard:** Opt-in public leaderboard — users upload CSV, see their dashboard, then choose to share stats under a display name. Ranked by total spend, token usage, streak length, etc. Requires accounts (auth TBD). Viral loop: "I'm in the top 10 Cursor spenders" shareable badges.
+- **Accounts + chart history:** Login-backed persistence so prompt-generated charts stack or are saved; revisit multiple LLM charts per session instead of single-slot UX.
 
 *Owner: Ash (ashokosnexus) · Collaborator: Monte*
 *Last updated: 2026-03-17*

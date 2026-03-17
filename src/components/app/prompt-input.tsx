@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 
 const SUGGESTIONS = [
@@ -26,7 +26,7 @@ export function PromptInput({ onSubmit, isLoading, error, lastPrompt }: PromptIn
     const trimmed = value.trim();
     if (!trimmed || isLoading) return;
     onSubmit(trimmed);
-    // Keep value visible while loading, clear when done (via useEffect)
+    setValue("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -36,18 +36,10 @@ export function PromptInput({ onSubmit, isLoading, error, lastPrompt }: PromptIn
     }
   };
 
-  // Clear input when loading completes
-  const wasLoading = useRef(false);
-  useEffect(() => {
-    if (wasLoading.current && !isLoading) {
-      setValue("");
-    }
-    wasLoading.current = isLoading;
-  }, [isLoading]);
-
   const handlePill = (prompt: string) => {
-    setValue(prompt); // Show in input while loading
+    if (isLoading) return;
     onSubmit(prompt);
+    setValue("");
   };
 
   return (

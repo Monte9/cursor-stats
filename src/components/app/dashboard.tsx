@@ -110,7 +110,6 @@ export function Dashboard({
   const handlePromptSubmit = useCallback(async (prompt: string) => {
     setIsPromptLoading(true);
     setPromptError(null);
-    setGeneratedChart(null);
     setLoadingPrompt(prompt);
     setLastSubmittedPrompt(prompt);
 
@@ -234,8 +233,8 @@ export function Dashboard({
           lastPrompt={lastSubmittedPrompt}
         />
 
-        {/* Generated chart (single slot) */}
-        {generatedChart && (
+        {/* Generated chart: hide while loading so only skeleton shows (single chart slot) */}
+        {generatedChart && !isPromptLoading && (
           <DynamicChart
             prompt={generatedChart.prompt}
             spec={generatedChart.spec}
