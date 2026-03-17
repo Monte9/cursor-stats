@@ -63,10 +63,31 @@ pnpm add -D @types/papaparse
 Create a typed parser that:
 1. Accepts a `File` object
 2. Parses with papaparse (`header: true`, `skipEmptyLines: true`)
-3. Validates expected columns exist (all 11 from the schema above)
+3. Validates expected columns exist against `REQUIRED_COLUMNS` constant
 4. Parses numeric fields from strings to numbers
-5. Handles Cost = `-` → `null` or `0`
-6. Returns a typed array of `CursorUsageRow[]` or a validation error
+5. Handles Cost = `-` → `null`
+6. Skips rows with unparseable dates (increment `skippedRows` counter)
+7. Returns a typed array of `CursorUsageRow[]` or a validation error
+
+**Required columns constant** — single source of truth for validation. If Cursor changes their export format in the future, update this list and the `CursorUsageRow` type:
+
+```ts
+export const REQUIRED_COLUMNS = [
+  'Date',
+  'User',
+  'Kind',
+  'Model',
+  'Max Mode',
+  'Input (w/ Cache Write)',
+  'Input (w/o Cache Write)',
+  'Cache Read',
+  'Output Tokens',
+  'Total Tokens',
+  'Cost',
+] as const;
+```
+
+**Types:**
 
 ```ts
 export interface CursorUsageRow {
@@ -80,13 +101,14 @@ export interface CursorUsageRow {
   cacheRead: number;
   outputTokens: number;
   totalTokens: number;
-  cost: number | null; // null for errored/aborted
+  cost: number | null; // null for errored/aborted (Cost = "-")
 }
 
 export interface ParseResult {
   success: true;
   data: CursorUsageRow[];
   warnings: string[]; // e.g. "3 rows had no cost data"
+  skippedRows: number; // rows dropped due to unparseable dates or other issues
 }
 
 export interface ParseError {
@@ -106,30 +128,45 @@ export interface UsageSummary {
   totalCost: number;
   totalTokens: number;
   dateRange: { start: Date; end: Date };
-  sessionDuration: string; // e.g. "11h 23m"
+  dateRangeDuration: string; // Time between first and last request (e.g. "11h 23m")
   uniqueModels: number;
   
   // Breakdowns
   byModel: { model: string; requests: number; cost: number; tokens: number }[];
   byDay: { date: string; requests: number; cost: number }[];
-  byHour: { hour: number; requests: number }[];
+  byHour: { hour: number; requests: number }[]; // hour-of-day aggregated across all days (0-23)
+  byHourInDay?: { hour: number; requests: number; cost: number }[]; // present only for single-day data
   byKind: { kind: string; count: number }[];
+  
+  // Token breakdown (for stacked chart)
+  tokenBreakdown: {
+    cacheRead: number;
+    inputExclCache: number; // inputWithoutCache summed
+    output: number;         // outputTokens summed
+  };
   
   // Derived insights
   avgCostPerRequest: number;
   mostUsedModel: string;
   peakHour: number;
-  cacheHitRate: number; // cacheRead / (cacheRead + inputWithoutCache)
-  errorRate: number; // errored+aborted / total
+  cacheHitRate: number; // cacheRead / (cacheRead + inputWithoutCache). When denominator is 0, use 0.
+  errorRate: number;    // (errored + aborted) / totalRequests. When totalRequests is 0, use 0.
 }
 ```
+
+**`byHourInDay`**: Present only when the data spans a single calendar day. Contains 24 buckets (0-23) for that specific day with both `requests` and `cost`. This is used by the Cost Over Time chart as the single-day x-axis.
+
+**`byHour`**: Always present. Aggregates requests by hour-of-day across all days in the dataset. Used by the "Usage by Hour" chart.
 
 ### 2.4 — Sample/Demo Data (`src/lib/demo-data.ts`)
 
 Bundle the sample CSV data Monte provided as a TypeScript constant. When `?demo=true`, skip the upload step and load this directly.
 
-- Copy a representative subset (or all 157 rows) as pre-parsed `CursorUsageRow[]`
+- Include all 157 rows from the original export as pre-parsed `CursorUsageRow[]`
 - Stored as a static import (no runtime parsing needed for demo)
+- Source CSV: `~/Projects/tmp/cursor-stats-research/` or inbound media folder
+- Add a comment in `demo-data.ts`: `// Generated from Cursor export on 2026-03-17. Keep in sync with CursorUsageRow type.`
+- Optionally commit source CSV to `scripts/sample-usage.csv` for reproducibility
 
 ### 2.5 — Upload Component (`src/components/app/upload-zone.tsx`)
 
@@ -140,16 +177,15 @@ Replace the current placeholder drop zone with a functional one:
 - **Drop state animations** with Framer Motion
 - Upload icon (SVG, not emoji)
 - File size display after selection
+- **File size limit: 10 MB max.** If exceeded, show error: "File is too large (max 10 MB). Try a smaller export or a shorter date range."
 - Error state: red border + error message if validation fails
-- Loading state: brief spinner/progress while parsing (even though it's instant, provides feedback)
-- On successful parse: transition to dashboard view
+- On successful parse: transition to dashboard view (no artificial spinner delay — show "Analyzing your data…" text during the synchronous parse, then immediately transition)
 
 **States:**
 1. **Idle** — dashed border, "Drag and drop your CSV" + "or click to browse"
 2. **Drag over** — orange border, orange bg tint, "Drop to upload"
-3. **Parsing** — spinner + "Analyzing your data..."
-4. **Error** — red border + error message + "Try again" link
-5. **Success** — brief green check → transition to dashboard
+3. **Error** — red border + error message + "Try again" link
+4. **Success** → transition to dashboard
 
 ### 2.6 — Dashboard Layout (`src/components/app/dashboard.tsx`)
 
@@ -161,21 +197,22 @@ The main dashboard view that appears after successful upload:
   - Total Cost (large number, dollar formatted)
   - Total Requests
   - Total Tokens (formatted with K/M suffixes)
-  - Session Duration
+  - Data Span (uses `dateRangeDuration` from stats, displayed as "Session Duration" label)
 - "Upload new file" link to reset
+- If `skippedRows > 0` or `warnings.length > 0`: show a small muted info bar beneath stats with warnings
 
 **Charts area (below stats):**
 1. **Model Breakdown** — horizontal bar chart (same style as landing page but with real data)
-2. **Cost Over Time** — line chart by day (if multi-day data) or by hour (if single-day)
-3. **Usage by Hour** — bar chart showing request distribution by hour of day
-4. **Token Breakdown** — stacked bar or pie chart: input vs cache vs output tokens
-5. **Request Types** — small donut/pie showing On-Demand vs Errored vs Aborted
+2. **Cost Over Time** — line chart. Uses `byDay` when data spans multiple calendar days (date on x-axis). Uses `byHourInDay` when data spans a single calendar day (hour on x-axis, with cost).
+3. **Usage by Hour** — bar chart showing request distribution by hour of day (uses `byHour`, always present)
+4. **Token Breakdown** — stacked bar chart with three segments: **Cache Read** (`tokenBreakdown.cacheRead`) | **Input (excl. cache)** (`tokenBreakdown.inputExclCache`) | **Output** (`tokenBreakdown.output`). Use orange-500, orange-300, and zinc-500 for the three segments.
+5. **Request Types** — small donut/pie showing On-Demand vs Errored vs Aborted (uses `byKind`)
 
 **Layout:**
 - 4 stat cards in a row (2x2 on mobile)
 - Charts in a responsive grid: 2 columns on desktop, 1 on mobile
 - All charts use the same tooltip styling from Phase 1
-- All charts use orange-500 as primary color, with zinc-600/zinc-500 for secondary data
+- All charts use orange-500 as primary color, with orange-300/zinc-500 for secondary data
 
 ### 2.7 — App Page Rewrite (`src/app/app/page.tsx`)
 
@@ -193,11 +230,9 @@ State management: `useState` with a `CursorUsageRow[] | null`. When null, show u
 
 Keep the "How to export" collapsible guide visible in the upload view (already exists). Hide it in dashboard view.
 
-### 2.8 — Nav Integration
+### 2.8 — Nav in Root Layout
 
-The sticky nav from Phase 1 should also appear on `/app`:
-- Import and render `<Nav />` in the app page
-- Or move `<Nav />` to the root layout so it appears everywhere
+Move `<Nav />` from the landing page to the **root layout** (`src/app/layout.tsx`) so it appears on all pages (`/`, `/app`, and any future routes). Remove the Nav import from `src/app/page.tsx`.
 
 ---
 
@@ -206,6 +241,8 @@ The sticky nav from Phase 1 should also appear on `/app`:
 ```
 src/
 ├── app/
+│   ├── layout.tsx              # MODIFIED: add Nav here (remove from page.tsx)
+│   ├── page.tsx                # MODIFIED: remove Nav import
 │   ├── app/
 │   │   └── page.tsx            # REWRITE: upload → dashboard state machine
 │   └── ...
@@ -218,16 +255,18 @@ src/
 │   │       ├── model-breakdown.tsx  # NEW: horizontal bar (real data)
 │   │       ├── cost-timeline.tsx    # NEW: line chart by day/hour
 │   │       ├── hourly-usage.tsx     # NEW: bar chart by hour
-│   │       ├── token-breakdown.tsx  # NEW: stacked bar or pie
+│   │       ├── token-breakdown.tsx  # NEW: stacked bar (3 segments)
 │   │       └── request-types.tsx    # NEW: donut chart
 │   ├── landing/                # Unchanged
 │   └── charts/
 │       └── mock-data.ts        # Unchanged (landing page only)
 ├── lib/
-│   ├── csv-parser.ts           # NEW: parse + validate CSV
-│   ├── stats.ts                # NEW: compute summary stats
-│   ├── demo-data.ts            # NEW: bundled sample data
+│   ├── csv-parser.ts           # NEW: parse + validate CSV (REQUIRED_COLUMNS constant)
+│   ├── stats.ts                # NEW: compute UsageSummary
+│   ├── demo-data.ts            # NEW: bundled sample data (157 rows)
 │   └── format.ts               # NEW: number formatting utilities
+scripts/
+│   └── sample-usage.csv        # OPTIONAL: source CSV for demo data reproducibility
 ```
 
 ---
@@ -265,18 +304,21 @@ This fulfills the "Try Demo" CTA from the landing page.
 
 ## Validation Rules
 
-**Required columns** (all 11 must be present):
+**Required columns** — validated against `REQUIRED_COLUMNS` constant in `csv-parser.ts`:
 `Date, User, Kind, Model, Max Mode, Input (w/ Cache Write), Input (w/o Cache Write), Cache Read, Output Tokens, Total Tokens, Cost`
 
-**Validation errors:**
+**File-level validation:**
+- File size > 10 MB → `"File is too large (max 10 MB). Try a smaller export or a shorter date range."`
+- Not a .csv file → `"Please upload a CSV file"`
+
+**Schema validation errors** (block upload):
 - Missing required column → `"Missing required column: {name}"`
 - No data rows → `"CSV file is empty"`
-- Unparseable date → warning (skip row, don't fail)
-- Non-numeric token value → warning (treat as 0)
 
-**Warnings** (don't block, just inform):
-- `"3 rows had no cost data (errored/aborted requests)"`
-- `"2 rows had unparseable dates and were skipped"`
+**Row-level warnings** (skip row, don't block):
+- Unparseable date → skip row, add to `skippedRows`, add warning: `"N rows had unparseable dates and were skipped"`
+- Non-numeric token value → treat as 0, add warning
+- Cost = `-` → set `cost: null`, add warning: `"N rows had no cost data (errored/aborted requests)"`
 
 ---
 
@@ -294,15 +336,19 @@ No other new deps needed — Recharts and Framer Motion already installed.
 ## Definition of Done
 
 - [ ] Drag & drop upload works (file picker + drag events)
+- [ ] File size limit enforced (10 MB)
 - [ ] CSV parsed client-side with papaparse
 - [ ] Validation: rejects non-CSV, missing columns, empty files
+- [ ] Skipped rows tracked and displayed in warnings
 - [ ] Error states shown clearly in UI
 - [ ] Summary dashboard renders with 4 stat cards + 5 charts
+- [ ] Cost Over Time uses `byDay` for multi-day and `byHourInDay` for single-day
+- [ ] Token Breakdown shows 3 segments: Cache Read, Input (excl. cache), Output
 - [ ] All charts interactive (tooltips)
 - [ ] Demo mode (`?demo=true`) loads sample data and shows dashboard
 - [ ] Demo banner with link to upload own data
 - [ ] "Upload new file" resets to upload view
-- [ ] Nav bar present on `/app`
+- [ ] Nav bar present on all pages (moved to root layout)
 - [ ] Responsive (mobile + desktop)
 - [ ] Animations: upload → dashboard transition, chart stagger
 - [ ] Build passes, deployed, no console errors
@@ -327,4 +373,4 @@ No other new deps needed — Recharts and Framer Motion already installed.
 
 ---
 
-*Status: Spec Written — Awaiting Review*
+*Status: Spec Updated — Ready for Final Review*
