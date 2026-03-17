@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CursorUsageRow, ParseResult } from "@/lib/csv-parser";
@@ -18,8 +18,10 @@ interface AppState {
 
 function AppContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const isDemo = searchParams.get("demo") === "true";
   const [appState, setAppState] = useState<AppState | null>(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   // Load demo data on mount if demo mode
@@ -30,6 +32,7 @@ function AppContent() {
         warnings: [],
         skippedRows: 0,
       });
+      setIsDemoMode(true);
     }
   }, [isDemo, appState]);
 
@@ -43,7 +46,12 @@ function AppContent() {
 
   const handleReset = useCallback(() => {
     setAppState(null);
-  }, []);
+    setIsDemoMode(false);
+    // Clear demo param from URL so upload works
+    if (isDemo) {
+      router.replace("/app");
+    }
+  }, [isDemo, router]);
 
   // Dashboard view
   if (appState) {
@@ -54,7 +62,7 @@ function AppContent() {
           data={appState.data}
           warnings={appState.warnings}
           skippedRows={appState.skippedRows}
-          isDemo={isDemo}
+          isDemo={isDemoMode}
           onReset={handleReset}
         />
       </AnimatePresence>
