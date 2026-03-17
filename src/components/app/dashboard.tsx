@@ -14,10 +14,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
 } from "recharts";
 
 const tooltipStyle = {
@@ -134,17 +130,14 @@ export function Dashboard({
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.byModel.slice(0, 6)} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" horizontal={false} vertical={true} />
-                    <XAxis type="number" stroke="#71717a" fontSize={11} />
+                    <XAxis type="number" stroke="#71717a" fontSize={11} tickFormatter={(v) => `$${v}`} />
                     <YAxis type="category" dataKey="model" stroke="#a1a1aa" fontSize={11} width={180} tickLine={false} axisLine={false} />
                     <Tooltip
                       {...tooltipStyle}
                       cursor={{ fill: "rgba(249, 115, 22, 0.08)" }}
-                      formatter={(value, name) => {
-                        if (name === "cost") return [`$${Number(value).toFixed(2)}`, "Cost"];
-                        return [formatNumber(Number(value)), "Requests"];
-                      }}
+                      formatter={(value) => [`$${Number(value).toFixed(2)}`, "Cost"]}
                     />
-                    <Bar dataKey="requests" fill="#f97316" radius={[0, 4, 4, 0]} animationDuration={1500} />
+                    <Bar dataKey="cost" fill="#f97316" radius={[0, 4, 4, 0]} animationDuration={1500} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -211,67 +204,54 @@ export function Dashboard({
               </div>
             </ChartCard>
 
-            {/* Card 4: Token Efficiency — cache rate + breakdown */}
+            {/* Card 4: Cost per Model — avg $/request efficiency */}
             <ChartCard>
               <div className="text-center mb-6">
-                <p className="text-zinc-400 text-sm">Token Efficiency</p>
+                <p className="text-zinc-400 text-sm">Cost per Request</p>
                 <p className="mt-1">
                   <span className="text-4xl font-bold text-zinc-50">
-                    {formatPercent(stats.cacheHitRate)}
+                    {formatCost(stats.avgCostPerRequest)}
                   </span>
                   <span className="text-zinc-400 ml-2 text-sm">
-                    cache hit rate
+                    avg across all models
                   </span>
                 </p>
                 <p className="text-zinc-500 text-xs mt-1">
-                  {formatTokens(stats.totalTokens)} total tokens processed
+                  {formatPercent(stats.cacheHitRate)} cache hit rate · {formatTokens(stats.totalTokens)} tokens
                 </p>
               </div>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: "Cache Read", value: stats.tokenBreakdown.cacheRead },
-                        { name: "Input (fresh)", value: stats.tokenBreakdown.inputExclCache },
-                        { name: "Output", value: stats.tokenBreakdown.output },
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={85}
-                      dataKey="value"
-                      animationDuration={1500}
-                    >
-                      <Cell fill="#f97316" />
-                      <Cell fill="#fb923c" />
-                      <Cell fill="#71717a" />
-                    </Pie>
+                  <BarChart data={stats.byModel.filter(m => m.avgCostPerReq > 0).slice(0, 6)} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" horizontal={false} vertical={true} />
+                    <XAxis type="number" stroke="#71717a" fontSize={11} tickFormatter={(v) => `$${v}`} />
+                    <YAxis type="category" dataKey="model" stroke="#a1a1aa" fontSize={11} width={180} tickLine={false} axisLine={false} />
                     <Tooltip
                       {...tooltipStyle}
-                      formatter={(value, name) => [formatTokens(Number(value)), String(name)]}
+                      cursor={{ fill: "rgba(249, 115, 22, 0.08)" }}
+                      formatter={(value) => [`$${Number(value).toFixed(2)}/req`, "Avg Cost"]}
                     />
-                    <Legend wrapperStyle={{ fontSize: "11px", color: "#a1a1aa" }} />
-                  </PieChart>
+                    <Bar dataKey="avgCostPerReq" fill="#fb923c" radius={[0, 4, 4, 0]} animationDuration={1500} />
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             </ChartCard>
           </div>
 
-          {/* Row 3: Day of Week — full width */}
+          {/* Row 3: Day of Week — cost focused, full width */}
           <ChartCard>
             <div className="text-center mb-6">
-              <p className="text-zinc-400 text-sm">Usage by Day of Week</p>
+              <p className="text-zinc-400 text-sm">Spending by Day of Week</p>
               <p className="mt-1">
-                <span className="text-4xl font-bold text-zinc-50">
-                  {stats.byDayOfWeek.reduce((max, d) => d.requests > max.requests ? d : max, stats.byDayOfWeek[0]).day}
+                <span className="text-4xl font-bold text-orange-500">
+                  {stats.byDayOfWeek.reduce((max, d) => d.cost > max.cost ? d : max, stats.byDayOfWeek[0]).day}
                 </span>
                 <span className="text-zinc-400 ml-2 text-sm">
-                  busiest day
+                  most expensive day
                 </span>
               </p>
               <p className="text-zinc-500 text-xs mt-1">
-                Which days you code most
+                When your AI spend peaks
               </p>
             </div>
             <div className="h-56 max-w-2xl mx-auto">
@@ -279,9 +259,9 @@ export function Dashboard({
                 <BarChart data={stats.byDayOfWeek}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" vertical={false} />
                   <XAxis dataKey="day" stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
-                  <Tooltip {...tooltipStyle} cursor={{ fill: "rgba(249, 115, 22, 0.08)" }} />
-                  <Bar dataKey="requests" fill="#f97316" radius={[4, 4, 0, 0]} animationDuration={1500} />
+                  <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
+                  <Tooltip {...tooltipStyle} cursor={{ fill: "rgba(249, 115, 22, 0.08)" }} formatter={(value) => [`$${value}`, "Cost"]} />
+                  <Bar dataKey="cost" fill="#f97316" radius={[4, 4, 0, 0]} animationDuration={1500} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

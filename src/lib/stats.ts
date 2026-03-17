@@ -8,7 +8,7 @@ export interface UsageSummary {
   dateRangeDuration: string;
   uniqueModels: number;
 
-  byModel: { model: string; requests: number; cost: number; tokens: number }[];
+  byModel: { model: string; requests: number; cost: number; tokens: number; avgCostPerReq: number }[];
   byDay: { date: string; requests: number; cost: number }[];
   byHour: { hour: number; requests: number }[];
   byHourInDay?: { hour: number; requests: number; cost: number }[];
@@ -72,8 +72,12 @@ export function computeStats(data: CursorUsageRow[]): UsageSummary {
     modelMap.set(r.model, existing);
   }
   const byModel = Array.from(modelMap.entries())
-    .map(([model, stats]) => ({ model, ...stats }))
-    .sort((a, b) => b.requests - a.requests);
+    .map(([model, s]) => ({
+      model,
+      ...s,
+      avgCostPerReq: s.requests > 0 ? Number((s.cost / s.requests).toFixed(2)) : 0,
+    }))
+    .sort((a, b) => b.cost - a.cost);
 
   // By day
   const dayMap = new Map<string, { requests: number; cost: number }>();
