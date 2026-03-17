@@ -35,7 +35,7 @@ export function ModelBreakdownChart({ data }: Props) {
               dataKey="model"
               stroke="#a1a1aa"
               fontSize={11}
-              width={140}
+              width={210}
               tickLine={false}
               axisLine={false}
             />
