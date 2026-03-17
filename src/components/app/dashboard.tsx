@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { CursorUsageRow } from "@/lib/csv-parser";
 import { computeStats } from "@/lib/stats";
 import { formatCost, formatTokens, formatNumber, formatHour, formatPercent } from "@/lib/format";
 import { ChartCard } from "./chart-card";
+import { PromptInput } from "./prompt-input";
+import { DynamicChart } from "./dynamic-chart";
+import { ChartSpec, SerializedSummary } from "@/lib/types";
 import {
   BarChart,
   Bar,
@@ -65,8 +68,69 @@ export function Dashboard({
 }: DashboardProps) {
   const stats = useMemo(() => computeStats(data), [data]);
   const [showWarnings, setShowWarnings] = useState(false);
+  const [generatedChart, setGeneratedChart] = useState<{
+    prompt: string;
+    spec: ChartSpec;
+  } | null>(null);
+  const [isPromptLoading, setIsPromptLoading] = useState(false);
+  const [promptError, setPromptError] = useState<string | null>(null);
 
   const monthlyProjection = stats.totalCost * (30 / Math.max(1, stats.byDay.length));
+
+  // Serialize summary for API (inline — just convert Dates to strings)
+  const serializedSummary = useMemo((): SerializedSummary => ({
+    totalRequests: stats.totalRequests,
+    totalCost: stats.totalCost,
+    totalTokens: stats.totalTokens,
+    dateRange: {
+      start: stats.dateRange.start.toISOString(),
+      end: stats.dateRange.end.toISOString(),
+    },
+    uniqueModels: stats.uniqueModels,
+    byModel: stats.byModel,
+    byDay: stats.byDay,
+    byHour: stats.byHour,
+    byDayOfWeek: stats.byDayOfWeek,
+    byKind: stats.byKind,
+    cacheHitRate: stats.cacheHitRate,
+    errorRate: stats.errorRate,
+    avgCostPerRequest: stats.avgCostPerRequest,
+    mostExpensiveRequest: stats.mostExpensiveRequest
+      ? {
+          ...stats.mostExpensiveRequest,
+          date: stats.mostExpensiveRequest.date.toISOString(),
+        }
+      : null,
+    longestCodingStreak: stats.longestCodingStreak,
+    busiestDay: stats.busiestDay,
+  }), [stats]);
+
+  const handlePromptSubmit = useCallback(async (prompt: string) => {
+    setIsPromptLoading(true);
+    setPromptError(null);
+
+    try {
+      const res = await fetch("/api/chart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, summary: serializedSummary }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Failed to generate chart.");
+      }
+
+      const spec = (await res.json()) as ChartSpec;
+      setGeneratedChart({ prompt, spec });
+    } catch (err) {
+      setPromptError(
+        err instanceof Error ? err.message : "Something went wrong."
+      );
+    } finally {
+      setIsPromptLoading(false);
+    }
+  }, [serializedSummary]);
 
   return (
     <motion.div
@@ -156,7 +220,34 @@ export function Dashboard({
           </motion.div>
         )}
 
-        {/* Cards grid */}
+        {/* Prompt input */}
+        <PromptInput
+          onSubmit={handlePromptSubmit}
+          isLoading={isPromptLoading}
+          error={promptError}
+        />
+
+        {/* Generated chart (single slot) */}
+        {generatedChart && (
+          <DynamicChart
+            prompt={generatedChart.prompt}
+            spec={generatedChart.spec}
+            stats={stats}
+            onDismiss={() => setGeneratedChart(null)}
+          />
+        )}
+
+        {/* Loading skeleton */}
+        {isPromptLoading && (
+          <div className="mb-6">
+            <div className="bg-zinc-900/80 border border-zinc-700/50 rounded-2xl p-6 animate-pulse">
+              <div className="h-4 bg-zinc-800 rounded w-1/3 mx-auto mb-4" />
+              <div className="h-48 bg-zinc-800/50 rounded" />
+            </div>
+          </div>
+        )}
+
+        {/* Static cards grid */}
         <motion.div
           className="space-y-6"
           initial={{ opacity: 0, y: 20 }}
