@@ -2,22 +2,16 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import Link from "next/link";
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import {
-  modelUsageData,
-  dailyCostData,
-  hourlyUsageData,
-} from "@/components/charts/mock-data";
 
 const tooltipStyle = {
   contentStyle: {
@@ -29,10 +23,42 @@ const tooltipStyle = {
   itemStyle: { color: "#f97316" },
 };
 
+// Mock data matching the demo dataset patterns
+const modelUsageData = [
+  { model: "claude-4.6-opus", requests: 412 },
+  { model: "gpt-5.4-medium", requests: 67 },
+  { model: "claude-4.6-sonnet", requests: 43 },
+  { model: "composer-1.5", requests: 38 },
+  { model: "auto", requests: 14 },
+];
+
+const hourlyUsageData = [
+  { label: "6am", requests: 28 },
+  { label: "7am", requests: 52 },
+  { label: "8am", requests: 89 },
+  { label: "9am", requests: 43 },
+  { label: "10am", requests: 12 },
+  { label: "11am", requests: 8 },
+  { label: "12pm", requests: 15 },
+  { label: "1pm", requests: 24 },
+  { label: "2pm", requests: 18 },
+  { label: "3pm", requests: 35 },
+  { label: "4pm", requests: 48 },
+  { label: "5pm", requests: 62 },
+  { label: "6pm", requests: 74 },
+  { label: "7pm", requests: 56 },
+  { label: "8pm", requests: 81 },
+  { label: "9pm", requests: 67 },
+  { label: "10pm", requests: 42 },
+  { label: "11pm", requests: 28 },
+];
+
 function ModelUsageChart() {
   return (
     <div className="bg-zinc-900 border border-zinc-600 rounded-xl p-6 shadow-lg shadow-black/20">
-      <h3 className="text-lg font-semibold text-zinc-50 mb-4">Model Usage</h3>
+      <h3 className="text-lg font-semibold text-zinc-50 mb-4">
+        Model Breakdown
+      </h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={modelUsageData} layout="vertical">
@@ -69,53 +95,13 @@ function ModelUsageChart() {
   );
 }
 
-function DailyCostChart() {
-  return (
-    <div className="bg-zinc-900 border border-zinc-600 rounded-xl p-6 shadow-lg shadow-black/20">
-      <h3 className="text-lg font-semibold text-zinc-50 mb-4">Daily Cost</h3>
-      <div className="h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={dailyCostData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
-            <XAxis
-              dataKey="day"
-              stroke="#71717a"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis
-              stroke="#71717a"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(value) => `$${value}`}
-            />
-            <Tooltip
-              {...tooltipStyle}
-              formatter={(value) => [`$${value}`, "Cost"]}
-            />
-            <Line
-              type="monotone"
-              dataKey="cost"
-              stroke="#f97316"
-              strokeWidth={2}
-              dot={{ fill: "#f97316", strokeWidth: 0, r: 4 }}
-              animationDuration={1500}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
-}
-
 function HourlyUsageChart() {
   return (
     <div className="bg-zinc-900 border border-zinc-600 rounded-xl p-6 shadow-lg shadow-black/20">
-      <h3 className="text-lg font-semibold text-zinc-50 mb-4">
+      <h3 className="text-lg font-semibold text-zinc-50 mb-1">
         Usage by Hour
       </h3>
+      <p className="text-zinc-500 text-xs mb-4">When you typically code</p>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={hourlyUsageData}>
@@ -125,9 +111,9 @@ function HourlyUsageChart() {
               vertical={false}
             />
             <XAxis
-              dataKey="hour"
+              dataKey="label"
               stroke="#71717a"
-              fontSize={11}
+              fontSize={10}
               tickLine={false}
               axisLine={false}
             />
@@ -170,18 +156,34 @@ export function ExampleCharts() {
 
         <motion.div
           ref={ref}
-          className="space-y-6"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          {/* Top row: 2 charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ModelUsageChart />
-            <DailyCostChart />
-          </div>
-          {/* Bottom: full width */}
+          <ModelUsageChart />
           <HourlyUsageChart />
+        </motion.div>
+
+        {/* CTA to full demo */}
+        <motion.div
+          className="mt-10 text-center"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Link
+            href="/app?demo=true"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-500 text-zinc-50 font-medium rounded-xl transition-all duration-200"
+          >
+            See full demo
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+          <p className="mt-3 text-zinc-500 text-sm">
+            Explore all 5 charts with real sample data
+          </p>
         </motion.div>
       </div>
     </section>
