@@ -25,6 +25,7 @@ Rules:
 - Keep titles short (5-8 words). Insights should be one surprising or actionable sentence.
 - For costs, set yLabel to "$". For counts, set yLabel to "requests" or "tokens".
 - For stat type: set statKey to the appropriate summary key. The client will format and display the real value.
+- For off-topic or unanswerable questions: use chartType "stat" WITHOUT a statKey. Set title to "Can't answer that" and insight to a helpful redirect like "Try asking about your models, costs, or usage patterns."
 
 Examples:
 

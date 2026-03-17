@@ -104,11 +104,31 @@ export function DynamicChart({
   // Stat type — resolve real value from stats
   if (spec.chartType === "stat") {
     const statKey = spec.statKey;
+
+    // Off-topic / no statKey — show insight only, no number
     if (!statKey || !(statKey in stats)) {
       return (
-        <ErrorCard prompt={prompt} onDismiss={onDismiss} message="Couldn't resolve that stat." />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-zinc-500 text-sm italic">&ldquo;{prompt}&rdquo;</p>
+            <button onClick={onDismiss} className="text-zinc-600 hover:text-zinc-400 text-lg leading-none">✕</button>
+          </div>
+          <ChartCard>
+            <div className="text-center py-6">
+              <p className="text-zinc-400 text-sm">{spec.title || "Hmm..."}</p>
+              {spec.insight && (
+                <p className="text-zinc-400 text-sm mt-3">{spec.insight}</p>
+              )}
+            </div>
+          </ChartCard>
+        </motion.div>
       );
     }
+
     const rawValue = stats[statKey as keyof UsageSummary] as number;
     const formattedValue = formatStatValue(statKey, rawValue);
 

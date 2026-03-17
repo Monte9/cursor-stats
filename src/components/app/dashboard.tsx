@@ -74,6 +74,8 @@ export function Dashboard({
   } | null>(null);
   const [isPromptLoading, setIsPromptLoading] = useState(false);
   const [promptError, setPromptError] = useState<string | null>(null);
+  const [loadingPrompt, setLoadingPrompt] = useState<string | null>(null);
+  const [lastSubmittedPrompt, setLastSubmittedPrompt] = useState<string | null>(null);
 
   const monthlyProjection = stats.totalCost * (30 / Math.max(1, stats.byDay.length));
 
@@ -108,7 +110,9 @@ export function Dashboard({
   const handlePromptSubmit = useCallback(async (prompt: string) => {
     setIsPromptLoading(true);
     setPromptError(null);
-    setGeneratedChart(null); // Clear existing chart immediately
+    setGeneratedChart(null);
+    setLoadingPrompt(prompt);
+    setLastSubmittedPrompt(prompt);
 
     try {
       const res = await fetch("/api/chart", {
@@ -130,6 +134,7 @@ export function Dashboard({
       );
     } finally {
       setIsPromptLoading(false);
+      setLoadingPrompt(null);
     }
   }, [serializedSummary]);
 
@@ -226,6 +231,7 @@ export function Dashboard({
           onSubmit={handlePromptSubmit}
           isLoading={isPromptLoading}
           error={promptError}
+          lastPrompt={lastSubmittedPrompt}
         />
 
         {/* Generated chart (single slot) */}
@@ -239,8 +245,9 @@ export function Dashboard({
         )}
 
         {/* Loading skeleton */}
-        {isPromptLoading && (
+        {isPromptLoading && loadingPrompt && (
           <div className="mb-6">
+            <p className="text-zinc-500 text-sm italic mb-2">&ldquo;{loadingPrompt}&rdquo;</p>
             <div className="bg-zinc-900/80 border border-zinc-700/50 rounded-2xl p-6 animate-pulse">
               <div className="h-4 bg-zinc-800 rounded w-1/3 mx-auto mb-4" />
               <div className="h-48 bg-zinc-800/50 rounded" />

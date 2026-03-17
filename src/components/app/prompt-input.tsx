@@ -15,9 +15,10 @@ interface PromptInputProps {
   onSubmit: (prompt: string) => void;
   isLoading: boolean;
   error: string | null;
+  lastPrompt?: string | null;
 }
 
-export function PromptInput({ onSubmit, isLoading, error }: PromptInputProps) {
+export function PromptInput({ onSubmit, isLoading, error, lastPrompt }: PromptInputProps) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -67,6 +68,7 @@ export function PromptInput({ onSubmit, isLoading, error }: PromptInputProps) {
         <button
           onClick={handleSubmit}
           disabled={!value.trim() || isLoading}
+          aria-label="Submit"
           className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg bg-orange-500 hover:bg-orange-400 disabled:bg-zinc-700 disabled:cursor-not-allowed transition-colors"
         >
           {isLoading ? (
@@ -89,6 +91,13 @@ export function PromptInput({ onSubmit, isLoading, error }: PromptInputProps) {
         </button>
       </div>
 
+      {/* Character count */}
+      {value.length > 400 && (
+        <p className={`text-xs mt-1 text-right ${value.length >= 500 ? "text-red-400" : "text-zinc-600"}`}>
+          {value.length}/500
+        </p>
+      )}
+
       {/* Suggestion pills */}
       <div className="flex flex-wrap gap-2 mt-3">
         <span className="text-zinc-600 text-xs mt-1">Try:</span>
@@ -104,15 +113,23 @@ export function PromptInput({ onSubmit, isLoading, error }: PromptInputProps) {
         ))}
       </div>
 
-      {/* Error */}
+      {/* Error + retry */}
       {error && (
-        <motion.p
+        <motion.div
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-3 text-red-400 text-sm"
+          className="mt-3 flex items-center gap-2"
         >
-          {error}
-        </motion.p>
+          <p className="text-red-400 text-sm">{error}</p>
+          {lastPrompt && (
+            <button
+              onClick={() => onSubmit(lastPrompt)}
+              className="text-orange-500 hover:text-orange-400 text-sm underline"
+            >
+              Retry
+            </button>
+          )}
+        </motion.div>
       )}
     </div>
   );
