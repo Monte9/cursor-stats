@@ -166,13 +166,21 @@ function AppContent() {
           )}
         </div>
 
-        {/* Back link */}
-        <Link
-          href="/"
-          className="mt-12 text-zinc-400 hover:text-zinc-50 transition-colors text-sm"
-        >
-          &larr; Back to home
-        </Link>
+        {/* Links */}
+        <div className="mt-12 flex items-center gap-6 text-sm">
+          <Link
+            href="/app?demo=true"
+            className="text-orange-500 hover:text-orange-400 font-medium transition-colors"
+          >
+            Try with demo data →
+          </Link>
+          <Link
+            href="/"
+            className="text-zinc-400 hover:text-zinc-50 transition-colors"
+          >
+            ← Back to home
+          </Link>
+        </div>
       </motion.div>
     </AnimatePresence>
   );
