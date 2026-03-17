@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Instrument_Serif } from "next/font/google";
+import { Nav } from "@/components/landing/nav";
 import "./globals.css";
 
 const geist = Geist({
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body
         className={`${geist.variable} ${instrumentSerif.variable} antialiased`}
       >
+        <Nav />
         {children}
       </body>
     </html>

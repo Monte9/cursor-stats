@@ -3,106 +3,143 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { CursorUsageRow, ParseResult } from "@/lib/csv-parser";
+import { DEMO_DATA } from "@/lib/demo-data";
+import { UploadZone } from "@/components/app/upload-zone";
+import { Dashboard } from "@/components/app/dashboard";
+
+interface AppState {
+  data: CursorUsageRow[];
+  warnings: string[];
+  skippedRows: number;
+}
 
 function AppContent() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
+  const [appState, setAppState] = useState<AppState | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
-  return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-4 py-12">
-      {/* Logo */}
-      <Link href="/">
-        <Image
-          src="/logo.png"
-          alt="CursorStats"
-          width={48}
-          height={48}
-          className="mb-6"
+  // Load demo data on mount if demo mode
+  useEffect(() => {
+    if (isDemo && !appState) {
+      setAppState({
+        data: DEMO_DATA,
+        warnings: [],
+        skippedRows: 0,
+      });
+    }
+  }, [isDemo, appState]);
+
+  const handleUpload = useCallback((result: ParseResult) => {
+    setAppState({
+      data: result.data,
+      warnings: result.warnings,
+      skippedRows: result.skippedRows,
+    });
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setAppState(null);
+  }, []);
+
+  // Dashboard view
+  if (appState) {
+    return (
+      <AnimatePresence mode="wait">
+        <Dashboard
+          key="dashboard"
+          data={appState.data}
+          warnings={appState.warnings}
+          skippedRows={appState.skippedRows}
+          isDemo={isDemo}
+          onReset={handleReset}
         />
-      </Link>
+      </AnimatePresence>
+    );
+  }
 
-      {/* Demo badge */}
-      {isDemo && (
-        <div className="mb-6 px-4 py-2 bg-orange-500/10 border border-orange-500/30 rounded-full">
-          <span className="text-orange-500 text-sm font-medium">
-            Demo mode coming soon
-          </span>
-        </div>
-      )}
-
-      {/* Heading */}
-      <h1 className="font-serif text-3xl sm:text-4xl text-zinc-50 text-center mb-8">
-        Upload your CSV
-      </h1>
-
-      {/* Drop zone (visual only) */}
-      <div className="w-full max-w-md">
-        <div className="border-2 border-dashed border-zinc-700 rounded-xl p-12 text-center cursor-not-allowed">
-          <div className="text-4xl mb-4">
-            <span role="img" aria-label="upload">
-              📤
-            </span>
-          </div>
-          <p className="text-zinc-400 mb-2">
-            Drag and drop your Cursor usage CSV here
-          </p>
-          <p className="text-zinc-500 text-sm">or click to browse</p>
-        </div>
-        <p className="text-zinc-500 text-sm text-center mt-4">
-          Upload coming soon — we&apos;re putting the finishing touches on this
-        </p>
-      </div>
-
-      {/* Collapsible guide */}
-      <div className="w-full max-w-md mt-8">
-        <button
-          onClick={() => setIsGuideOpen(!isGuideOpen)}
-          className="w-full flex items-center justify-between px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-50 hover:bg-zinc-800 transition-colors"
-        >
-          <span>How to export from Cursor</span>
-          <svg
-            className={`w-5 h-5 transition-transform ${isGuideOpen ? "rotate-180" : ""}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
-        {isGuideOpen && (
-          <div className="mt-2 px-4 py-4 bg-zinc-900 border border-zinc-700 rounded-lg">
-            <ol className="space-y-3 text-zinc-400 text-sm list-decimal list-inside">
-              <li>Open Cursor and go to Settings</li>
-              <li>
-                Navigate to{" "}
-                <span className="text-zinc-50">Settings &gt; Usage</span>
-              </li>
-              <li>
-                Click the{" "}
-                <span className="text-zinc-50">&quot;Export CSV&quot;</span>{" "}
-                button
-              </li>
-              <li>Save the file and upload it here</li>
-            </ol>
-          </div>
-        )}
-      </div>
-
-      {/* Back link */}
-      <Link
-        href="/"
-        className="mt-12 text-zinc-400 hover:text-zinc-50 transition-colors text-sm"
+  // Upload view
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key="upload"
+        className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-4 py-12"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
       >
-        &larr; Back to home
-      </Link>
-    </div>
+        {/* Logo */}
+        <Link href="/">
+          <Image
+            src="/logo.png"
+            alt="CursorStats"
+            width={48}
+            height={48}
+            className="mb-6"
+          />
+        </Link>
+
+        {/* Heading */}
+        <h1 className="font-serif text-3xl sm:text-4xl text-zinc-50 text-center mb-8">
+          Upload your CSV
+        </h1>
+
+        {/* Upload zone */}
+        <UploadZone onUpload={handleUpload} />
+
+        {/* Collapsible guide */}
+        <div className="w-full max-w-lg mt-8">
+          <button
+            onClick={() => setIsGuideOpen(!isGuideOpen)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-50 hover:bg-zinc-800 transition-colors"
+          >
+            <span>How to export from Cursor</span>
+            <svg
+              className={`w-5 h-5 transition-transform ${isGuideOpen ? "rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          {isGuideOpen && (
+            <div className="mt-2 px-4 py-4 bg-zinc-900 border border-zinc-700 rounded-lg">
+              <ol className="space-y-3 text-zinc-400 text-sm list-decimal list-inside">
+                <li>Open Cursor and go to Settings</li>
+                <li>
+                  Navigate to{" "}
+                  <span className="text-zinc-50">Settings &gt; Usage</span>
+                </li>
+                <li>
+                  Click the{" "}
+                  <span className="text-zinc-50">&quot;Export CSV&quot;</span>{" "}
+                  button
+                </li>
+                <li>Save the file and upload it here</li>
+              </ol>
+            </div>
+          )}
+        </div>
+
+        {/* Back link */}
+        <Link
+          href="/"
+          className="mt-12 text-zinc-400 hover:text-zinc-50 transition-colors text-sm"
+        >
+          &larr; Back to home
+        </Link>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
