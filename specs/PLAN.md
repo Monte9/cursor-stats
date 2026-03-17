@@ -4,7 +4,7 @@
 
 **Repo:** [ashokosnexus/cursor-stats](https://github.com/ashokosnexus/cursor-stats) (private)
 **Live:** https://cursorstats.vercel.app
-**Stack:** Next.js 16, Tailwind CSS 4, Recharts, Framer Motion, pnpm
+**Stack:** Next.js 16, Tailwind CSS 4, Recharts, Framer Motion, Vercel AI SDK, pnpm
 **Domain:** cursorstats.com (pending purchase)
 
 ---
@@ -20,30 +20,16 @@ Hero with orange glow, How It Works, example charts, trust badge, sticky nav, `/
 **Spec:** [phase-1-landing.md](./phase-1-landing.md)
 
 ### Phase 2: CSV Upload + Summary Dashboard ✅
-Client-side CSV parsing (papaparse), 20+ computed stats, 5 interactive chart cards (glassmorphism, macOS dots, watermark), demo mode with 574-row sample data. Cost-focused insights: model breakdown by spend, cost per request efficiency, priciest request, longest coding streak, busiest day.
+Client-side CSV parsing (papaparse), 20+ computed stats, 5 interactive chart cards (glassmorphism, macOS dots, watermark), demo mode with 20,888-row all-time sample data. Cost-focused insights: model breakdown by spend, cost per request efficiency, priciest request, longest coding streak, busiest day.
 **Spec:** [phase-2-upload.md](./phase-2-upload.md)
+
+### Phase 3: Prompt → Chart Engine ✅
+Natural language questions → dynamic charts via LLM. Claude 4.6 Sonnet via Vercel AI SDK `generateObject()` with Zod schema. LLM selects `dataSource` reference (byModel, byDay, byHour, byMonth, byDayOfWeek, byKind), client resolves against real `UsageSummary` data — zero hallucination. Single chart slot, 5 suggestion pills, skeleton loading, error + retry, off-topic handling. No rate limiting (monitoring Anthropic dashboard). No Opus fallback. Privacy preserved (only aggregated stats sent to API).
+**Spec:** [phase-3-prompt-engine.md](./phase-3-prompt-engine.md)
 
 ---
 
 ## Upcoming Phases
-
-### Phase 3: Prompt → Chart Engine
-The core differentiator — let users ask natural language questions about their data and get dynamic charts.
-
-**What this means:**
-- Text input at top of dashboard: "What's my most expensive hour of the day?" → generates a chart
-- Vercel AI SDK + Next.js API route → Claude 4.6 Sonnet (primary), Opus (fallback)
-- LLM receives: CSV schema + `UsageSummary` stats (never raw rows) → returns structured chart spec JSON
-- Recharts renders the spec dynamically (chart type, data mapping, colors, title)
-- Pre-seeded suggestion prompts as chips below the input
-- Chat-style history: previous queries stack below the input, each with its chart
-- Rate limiting (per-IP or session-based) since we're paying for the LLM
-
-**Key design question:** Do prompt-generated charts replace the static dashboard, or supplement it? Recommendation: keep the static dashboard as a "home" view, add a "Ask a question" section above it where dynamic charts appear. The static charts prove the product immediately; the prompt charts show depth.
-
-**New dependencies:** `ai` (Vercel AI SDK), `@ai-sdk/anthropic`
-**New files:** API route (`src/app/api/chart/route.ts`), prompt input component, dynamic chart renderer
-**Spec:** phase-3-prompt-engine.md (TBD)
 
 ### Phase 4: Chart Export + Sharing (Viral Loop)
 Make the glassmorphism chart cards downloadable and shareable.
@@ -77,14 +63,14 @@ Make the glassmorphism chart cards downloadable and shareable.
 | Charts | Recharts | React-native, animation, composable |
 | Animations | Framer Motion | Scroll reveal, transitions, chart mount |
 | CSV Parsing | papaparse (client-side) | Privacy-first, no data leaves browser |
-| LLM | Vercel AI SDK → Anthropic (Phase 3) | Streaming, structured output |
+| LLM | Vercel AI SDK → Claude Sonnet | `generateObject()` + Zod, structured output |
 | Hosting | Vercel | Auto-deploy from GitHub |
 | Package Manager | pnpm | Fast, disk efficient |
 
 ## Privacy Model
 - CSV data stays client-side only
-- Only aggregated stats + schema sent to LLM (Phase 3, never raw rows)
-- No data persistence by default (sessionStorage opt-in in Phase 4.5)
+- Only aggregated stats sent to LLM (never raw rows)
+- No data persistence by default
 - No analytics/tracking beyond Vercel defaults
 
 ## Routes
@@ -93,7 +79,7 @@ Make the glassmorphism chart cards downloadable and shareable.
 | `/` | Landing page (marketing) |
 | `/app` | Upload CSV → dashboard |
 | `/demo` | Demo dashboard with sample data |
-| `/api/chart` | LLM chart generation endpoint (Phase 3) |
+| `/api/chart` | LLM chart generation endpoint |
 
 ---
 

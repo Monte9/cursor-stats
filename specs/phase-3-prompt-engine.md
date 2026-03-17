@@ -370,4 +370,4 @@ pnpm add ai @ai-sdk/anthropic zod
 
 ---
 
-*Status: Spec Revised — Awaiting Final Review*
+*Status: Complete — Shipped 2026-03-17*
