@@ -14,6 +14,7 @@ export interface UsageSummary {
   byHourInDay?: { hour: number; requests: number; cost: number }[];
   byKind: { kind: string; count: number }[];
   byDayOfWeek: { day: string; requests: number; cost: number }[];
+  byMonth: { month: string; requests: number; cost: number }[];
 
   tokenBreakdown: {
     cacheRead: number;
@@ -153,6 +154,19 @@ export function computeStats(data: CursorUsageRow[]): UsageSummary {
     cost: Number(dowMap.get(d)!.cost.toFixed(2)),
   }));
 
+  // By month
+  const monthMap = new Map<string, { requests: number; cost: number }>();
+  for (const r of data) {
+    const key = `${r.date.getFullYear()}-${String(r.date.getMonth() + 1).padStart(2, "0")}`;
+    const existing = monthMap.get(key) || { requests: 0, cost: 0 };
+    existing.requests++;
+    existing.cost += r.cost ?? 0;
+    monthMap.set(key, existing);
+  }
+  const byMonth = Array.from(monthMap.entries())
+    .map(([month, s]) => ({ month, requests: s.requests, cost: Number(s.cost.toFixed(2)) }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+
   // Token breakdown
   const tokenBreakdown = {
     cacheRead: data.reduce((sum, r) => sum + r.cacheRead, 0),
@@ -237,6 +251,7 @@ export function computeStats(data: CursorUsageRow[]): UsageSummary {
     byHourInDay,
     byKind,
     byDayOfWeek,
+    byMonth,
     tokenBreakdown,
     avgCostPerRequest,
     mostUsedModel,

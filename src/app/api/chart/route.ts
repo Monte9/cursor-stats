@@ -10,6 +10,7 @@ You must select from these data sources (pre-computed, real data):
 - byDay: [{date, requests, cost}] — daily breakdown
 - byHour: [{hour, requests}] — requests by hour of day (0-23)
 - byDayOfWeek: [{day, requests, cost}] — Mon through Sun
+- byMonth: [{month, requests, cost}] — monthly breakdown (e.g. "2025-07", "2026-03")
 - byKind: [{kind, count}] — request type breakdown (On-Demand, Free, Errored, etc.)
 
 For stat-type answers, reference these summary keys:
@@ -40,6 +41,9 @@ Response: { "chartType": "stat", "statKey": "cacheHitRate", "title": "Cache Hit 
 
 User: "Show my daily spending trend"
 Response: { "chartType": "bar", "dataSource": "byDay", "xKey": "date", "yKey": "cost", "title": "Daily Spending", "yLabel": "$", "insight": "Your spending varies significantly day to day" }
+
+User: "Show the cost by month"
+Response: { "chartType": "bar", "dataSource": "byMonth", "xKey": "month", "yKey": "cost", "title": "Monthly Cost Breakdown", "yLabel": "$", "insight": "Your spending has been ramping up since November" }
 
 User: "Compare model efficiency"
 Response: { "chartType": "horizontalBar", "dataSource": "byModel", "xKey": "model", "yKey": "avgCostPerReq", "title": "Cost per Request by Model", "yLabel": "$", "sortBy": "avgCostPerReq", "limit": 6, "insight": "Cheaper models aren't always more cost-efficient per request" }`;

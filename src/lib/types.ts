@@ -9,7 +9,7 @@ export const chartSpecSchema = z.object({
     .describe("horizontalBar = Recharts BarChart with layout='vertical'"),
   // For chart types (bar, horizontalBar, line):
   dataSource: z
-    .enum(["byModel", "byDay", "byHour", "byDayOfWeek", "byKind"])
+    .enum(["byModel", "byDay", "byHour", "byDayOfWeek", "byKind", "byMonth"])
     .optional()
     .describe("Which UsageSummary breakdown to visualize"),
   xKey: z.string().optional().describe("Field name for x-axis / labels"),
@@ -55,6 +55,7 @@ export interface SerializedSummary {
   byDay: { date: string; requests: number; cost: number }[];
   byHour: { hour: number; requests: number }[];
   byDayOfWeek: { day: string; requests: number; cost: number }[];
+  byMonth: { month: string; requests: number; cost: number }[];
   byKind: { kind: string; count: number }[];
   cacheHitRate: number;
   errorRate: number;

@@ -93,6 +93,7 @@ export function Dashboard({
     byDay: stats.byDay,
     byHour: stats.byHour,
     byDayOfWeek: stats.byDayOfWeek,
+    byMonth: stats.byMonth,
     byKind: stats.byKind,
     cacheHitRate: stats.cacheHitRate,
     errorRate: stats.errorRate,

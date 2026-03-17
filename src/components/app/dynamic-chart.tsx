@@ -90,6 +90,7 @@ function resolveData(
     byDay: stats.byDay,
     byHour: stats.byHour,
     byDayOfWeek: stats.byDayOfWeek,
+    byMonth: stats.byMonth,
     byKind: stats.byKind,
   };
   return (map[dataSource] as Record<string, unknown>[]) || null;
