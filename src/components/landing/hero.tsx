@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { HeroChart } from "./hero-chart";
@@ -23,6 +24,17 @@ export function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
+        {/* Logo + Name */}
+        <div className="flex items-center gap-3 mb-8">
+          <Image
+            src="/logo.png"
+            alt="CursorStats"
+            width={36}
+            height={36}
+          />
+          <span className="text-zinc-50 font-medium text-lg">CursorStats</span>
+        </div>
+
         {/* Headline */}
         <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-zinc-50 leading-tight">
           See what your AI usage really looks like
