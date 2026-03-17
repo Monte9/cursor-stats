@@ -55,7 +55,7 @@ export function Hero() {
             Get Started
           </Link>
           <Link
-            href="/app?demo=true"
+            href="/demo"
             className="px-10 py-3.5 border border-zinc-500 hover:border-zinc-400 hover:bg-zinc-800/60 text-zinc-50 font-semibold rounded-xl transition-all duration-200"
           >
             Try Demo

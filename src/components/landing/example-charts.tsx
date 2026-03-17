@@ -173,7 +173,7 @@ export function ExampleCharts() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <Link
-            href="/app?demo=true"
+            href="/demo"
             className="inline-flex items-center gap-2 px-8 py-3 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-500 text-zinc-50 font-medium rounded-xl transition-all duration-200"
           >
             See full demo

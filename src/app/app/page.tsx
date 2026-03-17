@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect, useCallback, useRef, Suspense } from "react";
+import { useState, useCallback, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CursorUsageRow, ParseResult } from "@/lib/csv-parser";
 import { DEMO_DATA } from "@/lib/demo-data";
@@ -16,30 +15,11 @@ interface AppState {
   skippedRows: number;
 }
 
-function AppContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const isDemo = searchParams.get("demo") === "true";
+export default function AppPage() {
   const [appState, setAppState] = useState<AppState | null>(null);
-  const [isDemoMode, setIsDemoMode] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const hasReset = useRef(false);
-
-  // Load demo data on mount if demo mode (but not after a reset)
-  useEffect(() => {
-    if (isDemo && !appState && !hasReset.current) {
-      setAppState({
-        data: DEMO_DATA,
-        warnings: [],
-        skippedRows: 0,
-      });
-      setIsDemoMode(true);
-    }
-  }, [isDemo, appState]);
 
   const handleUpload = useCallback((result: ParseResult) => {
-    hasReset.current = false;
-    setIsDemoMode(false);
     setAppState({
       data: result.data,
       warnings: result.warnings,
@@ -48,12 +28,8 @@ function AppContent() {
   }, []);
 
   const handleReset = useCallback(() => {
-    hasReset.current = true;
     setAppState(null);
-    setIsDemoMode(false);
-    // Clear demo param from URL
-    router.replace("/app");
-  }, [router]);
+  }, []);
 
   // Dashboard view
   if (appState) {
@@ -64,7 +40,7 @@ function AppContent() {
           data={appState.data}
           warnings={appState.warnings}
           skippedRows={appState.skippedRows}
-          isDemo={isDemoMode}
+          isDemo={false}
           onReset={handleReset}
         />
       </AnimatePresence>
@@ -121,13 +97,14 @@ function AppContent() {
               Your data never leaves your browser
             </p>
             <p className="text-zinc-500 text-xs mt-0.5">
-              Your CSV is parsed entirely client-side. We never upload, store, or have access to your usage data.
+              Your CSV is parsed entirely client-side. We never upload, store, or
+              have access to your usage data.
             </p>
           </div>
         </div>
 
         {/* Collapsible guide */}
-        <div className="w-full max-w-lg mt-8">
+        <div className="w-full max-w-lg mt-4">
           <button
             onClick={() => setIsGuideOpen(!isGuideOpen)}
             className="w-full flex items-center justify-between px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-50 hover:bg-zinc-800 transition-colors"
@@ -166,36 +143,14 @@ function AppContent() {
           )}
         </div>
 
-        {/* Try demo link */}
-        <button
-          onClick={() => {
-            hasReset.current = false;
-            setIsDemoMode(true);
-            setAppState({
-              data: DEMO_DATA,
-              warnings: [],
-              skippedRows: 0,
-            });
-          }}
-          className="mt-12 text-orange-500 hover:text-orange-400 font-medium text-sm transition-colors"
+        {/* Try demo */}
+        <Link
+          href="/demo"
+          className="mt-8 text-orange-500 hover:text-orange-400 font-medium text-sm transition-colors"
         >
           Try with demo data →
-        </button>
+        </Link>
       </motion.div>
     </AnimatePresence>
-  );
-}
-
-export default function AppPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-          <div className="text-zinc-400">Loading...</div>
-        </div>
-      }
-    >
-      <AppContent />
-    </Suspense>
   );
 }
