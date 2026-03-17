@@ -98,6 +98,7 @@ Make the glassmorphism chart cards downloadable and shareable.
 ---
 
 ### Nice to Have (Post-Launch)
+- **Multi-series charts:** Add cross-dimensional data sources (e.g. `byModelByMonth`) to enable "compare model X vs model Y over time" stacked/grouped bar charts. Current architecture only supports single-series per chart.
 - **Data Persistence:** Store parsed CSV in `sessionStorage` so page refresh keeps data within same tab
 - **Multi-file comparison:** Upload two CSVs (e.g. week-over-week) and see diff
 - **Team view:** Multi-user CSV with per-user breakdowns
