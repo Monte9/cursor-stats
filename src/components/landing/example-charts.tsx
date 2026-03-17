@@ -13,11 +13,25 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { modelUsageData, dailyCostData } from "@/components/charts/mock-data";
+import {
+  modelUsageData,
+  dailyCostData,
+  hourlyUsageData,
+} from "@/components/charts/mock-data";
+
+const tooltipStyle = {
+  contentStyle: {
+    background: "#18181b",
+    border: "1px solid #3f3f46",
+    borderRadius: "8px",
+  },
+  labelStyle: { color: "#fafafa" },
+  itemStyle: { color: "#f97316" },
+};
 
 function ModelUsageChart() {
   return (
-    <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
+    <div className="bg-zinc-900 border border-zinc-600 rounded-xl p-6 shadow-lg shadow-black/20">
       <h3 className="text-lg font-semibold text-zinc-50 mb-4">Model Usage</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
@@ -25,27 +39,21 @@ function ModelUsageChart() {
             <CartesianGrid
               strokeDasharray="3 3"
               stroke="#3f3f46"
-              horizontal={true}
-              vertical={false}
+              horizontal={false}
+              vertical={true}
             />
-            <XAxis type="number" stroke="#a1a1aa" fontSize={12} />
+            <XAxis type="number" stroke="#71717a" fontSize={12} />
             <YAxis
               type="category"
               dataKey="model"
               stroke="#a1a1aa"
               fontSize={11}
-              width={110}
+              width={120}
               tickLine={false}
               axisLine={false}
             />
             <Tooltip
-              contentStyle={{
-                background: "#18181b",
-                border: "1px solid #3f3f46",
-                borderRadius: "8px",
-              }}
-              labelStyle={{ color: "#fafafa" }}
-              itemStyle={{ color: "#f97316" }}
+              {...tooltipStyle}
               cursor={{ fill: "rgba(249, 115, 22, 0.08)" }}
             />
             <Bar
@@ -63,7 +71,7 @@ function ModelUsageChart() {
 
 function DailyCostChart() {
   return (
-    <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
+    <div className="bg-zinc-900 border border-zinc-600 rounded-xl p-6 shadow-lg shadow-black/20">
       <h3 className="text-lg font-semibold text-zinc-50 mb-4">Daily Cost</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
@@ -71,26 +79,20 @@ function DailyCostChart() {
             <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
             <XAxis
               dataKey="day"
-              stroke="#a1a1aa"
+              stroke="#71717a"
               fontSize={12}
               tickLine={false}
               axisLine={false}
             />
             <YAxis
-              stroke="#a1a1aa"
+              stroke="#71717a"
               fontSize={12}
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `$${value}`}
             />
             <Tooltip
-              contentStyle={{
-                background: "#18181b",
-                border: "1px solid #3f3f46",
-                borderRadius: "8px",
-              }}
-              labelStyle={{ color: "#fafafa" }}
-              itemStyle={{ color: "#f97316" }}
+              {...tooltipStyle}
               formatter={(value) => [`$${value}`, "Cost"]}
             />
             <Line
@@ -108,6 +110,50 @@ function DailyCostChart() {
   );
 }
 
+function HourlyUsageChart() {
+  return (
+    <div className="bg-zinc-900 border border-zinc-600 rounded-xl p-6 shadow-lg shadow-black/20">
+      <h3 className="text-lg font-semibold text-zinc-50 mb-4">
+        Usage by Hour
+      </h3>
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={hourlyUsageData}>
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#3f3f46"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="hour"
+              stroke="#71717a"
+              fontSize={11}
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis
+              stroke="#71717a"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+            />
+            <Tooltip
+              {...tooltipStyle}
+              cursor={{ fill: "rgba(249, 115, 22, 0.08)" }}
+            />
+            <Bar
+              dataKey="requests"
+              fill="#f97316"
+              radius={[4, 4, 0, 0]}
+              animationDuration={1500}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
 export function ExampleCharts() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -118,19 +164,24 @@ export function ExampleCharts() {
         <h2 className="font-serif text-3xl sm:text-4xl text-zinc-50 text-center mb-4">
           See Your Usage at a Glance
         </h2>
-        <p className="text-zinc-400 text-center mb-16 max-w-2xl mx-auto">
+        <p className="text-zinc-400 text-center mb-12 max-w-2xl mx-auto">
           Interactive charts that help you understand your AI usage patterns
         </p>
 
         <motion.div
           ref={ref}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+          className="space-y-6"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <ModelUsageChart />
-          <DailyCostChart />
+          {/* Top row: 2 charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ModelUsageChart />
+            <DailyCostChart />
+          </div>
+          {/* Bottom: full width */}
+          <HourlyUsageChart />
         </motion.div>
       </div>
     </section>

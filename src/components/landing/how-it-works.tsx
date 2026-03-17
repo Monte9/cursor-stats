@@ -81,7 +81,7 @@ export function HowItWorks() {
           {steps.map((step, index) => (
             <motion.div
               key={step.title}
-              className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 text-center"
+              className="relative bg-zinc-800 border border-zinc-700 rounded-xl p-6 text-center"
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
               transition={{
@@ -90,7 +90,11 @@ export function HowItWorks() {
                 ease: "easeOut",
               }}
             >
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-zinc-800 text-orange-500 mb-4">
+              {/* Step number */}
+              <div className="absolute -top-3 -left-3 w-7 h-7 rounded-full bg-orange-500 text-zinc-950 text-sm font-bold flex items-center justify-center">
+                {index + 1}
+              </div>
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-zinc-900 text-orange-500 mb-4">
                 {step.icon}
               </div>
               <h3 className="text-xl font-semibold text-zinc-50 mb-2">
