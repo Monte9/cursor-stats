@@ -45,7 +45,7 @@ The core differentiator — let users ask natural language questions about their
 **New files:** API route (`src/app/api/chart/route.ts`), prompt input component, dynamic chart renderer
 **Spec:** phase-3-prompt-engine.md (TBD)
 
-### Phase 4: Chart Export + Sharing
+### Phase 4: Chart Export + Sharing (Viral Loop)
 Make the glassmorphism chart cards downloadable and shareable.
 
 **What this means:**
@@ -57,12 +57,6 @@ Make the glassmorphism chart cards downloadable and shareable.
 **Why this matters:** Every shared chart card is free marketing. The macOS dots + watermark design was built for this.
 
 **Spec:** phase-4-export.md (TBD)
-
-### Phase 4.5: Data Persistence
-- Store parsed CSV in `sessionStorage` so page refresh keeps data within the same tab
-- Clear on tab close (privacy-preserving)
-- Enables back/forward navigation without re-upload
-- Small quality-of-life improvement
 
 ### Phase 5: Polish & Launch
 - OG image / Twitter card (dynamic stats preview)
@@ -102,6 +96,11 @@ Make the glassmorphism chart cards downloadable and shareable.
 | `/api/chart` | LLM chart generation endpoint (Phase 3) |
 
 ---
+
+### Nice to Have (Post-Launch)
+- **Data Persistence:** Store parsed CSV in `sessionStorage` so page refresh keeps data within same tab
+- **Multi-file comparison:** Upload two CSVs (e.g. week-over-week) and see diff
+- **Team view:** Multi-user CSV with per-user breakdowns
 
 *Owner: Ash (ashokosnexus) · Collaborator: Monte*
 *Last updated: 2026-03-17*
