@@ -9,9 +9,9 @@ export function ChartCard({ children }: ChartCardProps) {
     <div className="relative bg-zinc-900/80 backdrop-blur-sm border border-zinc-700/50 rounded-2xl p-6 shadow-xl shadow-black/30 overflow-hidden">
       {/* Window dots */}
       <div className="absolute top-4 left-5 flex gap-1.5">
-        <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-        <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-        <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
+        <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+        <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+        <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
       </div>
 
       {/* Watermark */}

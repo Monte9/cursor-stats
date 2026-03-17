@@ -126,7 +126,7 @@ export function Dashboard({
                   ~{formatCost(monthlyProjection)}/mo projected
                 </p>
               </div>
-              <div className="h-56">
+              <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.byModel.slice(0, 6)} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" horizontal={false} vertical={true} />
@@ -159,7 +159,7 @@ export function Dashboard({
                   {formatCost(stats.totalCost / Math.max(1, stats.byDay.length))}/day avg
                 </p>
               </div>
-              <div className="h-56">
+              <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.byDay.map(d => ({ ...d, cost: Number(d.cost.toFixed(2)) }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" vertical={false} />
@@ -238,34 +238,25 @@ export function Dashboard({
             </ChartCard>
           </div>
 
-          {/* Row 3: Day of Week — cost focused, full width */}
-          <ChartCard>
-            <div className="text-center mb-6">
-              <p className="text-zinc-400 text-sm">Spending by Day of Week</p>
-              <p className="mt-1">
-                <span className="text-4xl font-bold text-orange-500">
-                  {stats.byDayOfWeek.reduce((max, d) => d.cost > max.cost ? d : max, stats.byDayOfWeek[0]).day}
-                </span>
-                <span className="text-zinc-400 ml-2 text-sm">
-                  most expensive day
-                </span>
-              </p>
-              <p className="text-zinc-500 text-xs mt-1">
-                When your AI spend peaks
-              </p>
-            </div>
-            <div className="h-56 max-w-2xl mx-auto">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.byDayOfWeek}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" vertical={false} />
-                  <XAxis dataKey="day" stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
-                  <Tooltip {...tooltipStyle} cursor={{ fill: "rgba(249, 115, 22, 0.08)" }} formatter={(value) => [`$${value}`, "Cost"]} />
-                  <Bar dataKey="cost" fill="#f97316" radius={[4, 4, 0, 0]} animationDuration={1500} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </ChartCard>
+          {/* Row 3: Most Expensive Request — full width */}
+          {stats.mostExpensiveRequest && (
+            <ChartCard>
+              <div className="text-center py-6">
+                <p className="text-zinc-400 text-sm">Most Expensive Single Request</p>
+                <p className="mt-2">
+                  <span className="text-5xl font-bold text-orange-500">
+                    {formatCost(stats.mostExpensiveRequest.cost)}
+                  </span>
+                </p>
+                <p className="text-zinc-400 text-sm mt-3">
+                  {stats.mostExpensiveRequest.model}
+                </p>
+                <p className="text-zinc-500 text-xs mt-1">
+                  {stats.mostExpensiveRequest.date.toLocaleDateString()} at {stats.mostExpensiveRequest.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+            </ChartCard>
+          )}
         </motion.div>
       </div>
     </motion.div>

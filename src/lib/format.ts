@@ -1,5 +1,5 @@
 export function formatCost(value: number): string {
-  return `$${value.toFixed(2)}`;
+  return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export function formatTokens(value: number): string {

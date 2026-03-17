@@ -26,6 +26,7 @@ export interface UsageSummary {
   peakHour: number;
   cacheHitRate: number;
   errorRate: number;
+  mostExpensiveRequest: { cost: number; model: string; date: Date } | null;
 }
 
 function formatDuration(ms: number): string {
@@ -172,6 +173,22 @@ export function computeStats(data: CursorUsageRow[]): UsageSummary {
   const cacheHitRate =
     cacheDenom > 0 ? tokenBreakdown.cacheRead / cacheDenom : 0;
 
+  // Most expensive single request
+  const paidRows = data.filter((r) => r.cost !== null && r.cost > 0);
+  const mostExpensiveRequest =
+    paidRows.length > 0
+      ? paidRows.reduce((max, r) =>
+          (r.cost ?? 0) > (max.cost ?? 0) ? r : max
+        )
+      : null;
+  const mostExpensiveRequestStat = mostExpensiveRequest
+    ? {
+        cost: mostExpensiveRequest.cost!,
+        model: mostExpensiveRequest.model,
+        date: mostExpensiveRequest.date,
+      }
+    : null;
+
   const errorAborted = data.filter(
     (r) => r.kind !== "On-Demand"
   ).length;
@@ -196,5 +213,6 @@ export function computeStats(data: CursorUsageRow[]): UsageSummary {
     peakHour,
     cacheHitRate,
     errorRate,
+    mostExpensiveRequest: mostExpensiveRequestStat,
   };
 }
