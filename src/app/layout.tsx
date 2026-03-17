@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
 const geist = Geist({
@@ -7,9 +7,16 @@ const geist = Geist({
   subsets: ["latin"],
 });
 
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  weight: "400",
+});
+
 export const metadata: Metadata = {
-  title: "CursorStats",
-  description: "Visualize your Cursor AI usage patterns",
+  title: "CursorStats — Visualize Your Cursor AI Usage",
+  description:
+    "Upload your Cursor usage CSV, ask questions in plain English, get interactive charts. Privacy-first — your data never leaves your browser.",
 };
 
 export default function RootLayout({
@@ -19,7 +26,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geist.variable} antialiased`}>{children}</body>
+      <body
+        className={`${geist.variable} ${instrumentSerif.variable} antialiased`}
+      >
+        {children}
+      </body>
     </html>
   );
 }
