@@ -23,9 +23,10 @@ export function HourlyUsageChart({ data }: Props) {
 
   return (
     <div className="bg-zinc-900 border border-zinc-600 rounded-xl p-6 shadow-lg shadow-black/20">
-      <h3 className="text-lg font-semibold text-zinc-50 mb-4">
+      <h3 className="text-lg font-semibold text-zinc-50 mb-1">
         Usage by Hour
       </h3>
+      <p className="text-zinc-500 text-xs mb-4">When you typically code</p>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>

@@ -10,7 +10,7 @@ import { ModelBreakdownChart } from "./charts/model-breakdown";
 import { CostTimelineChart } from "./charts/cost-timeline";
 import { HourlyUsageChart } from "./charts/hourly-usage";
 import { TokenBreakdownChart } from "./charts/token-breakdown";
-import { RequestTypesChart } from "./charts/request-types";
+import { DayOfWeekChart } from "./charts/day-of-week";
 
 interface DashboardProps {
   data: CursorUsageRow[];
@@ -114,10 +114,7 @@ export function Dashboard({
           {/* Row 1: Model + Cost */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ModelBreakdownChart data={stats.byModel} />
-            <CostTimelineChart
-              byDay={stats.byDay}
-              byHourInDay={stats.byHourInDay}
-            />
+            <CostTimelineChart byDay={stats.byDay} />
           </div>
 
           {/* Row 2: Hourly + Tokens */}
@@ -126,9 +123,9 @@ export function Dashboard({
             <TokenBreakdownChart data={stats.tokenBreakdown} />
           </div>
 
-          {/* Row 3: Request Types */}
+          {/* Row 3: Day of Week */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <RequestTypesChart data={stats.byKind} />
+            <DayOfWeekChart data={stats.byDayOfWeek} />
           </div>
         </motion.div>
       </div>

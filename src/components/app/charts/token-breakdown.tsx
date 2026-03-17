@@ -1,10 +1,9 @@
 "use client";
 
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
+  PieChart,
+  Pie,
+  Cell,
   Tooltip,
   ResponsiveContainer,
   Legend,
@@ -19,14 +18,17 @@ interface Props {
   };
 }
 
+const SEGMENTS = [
+  { key: "Cache Read", color: "#f97316" },
+  { key: "Input (excl. cache)", color: "#fb923c" },
+  { key: "Output", color: "#71717a" },
+];
+
 export function TokenBreakdownChart({ data }: Props) {
   const chartData = [
-    {
-      name: "Tokens",
-      "Cache Read": data.cacheRead,
-      "Input (excl. cache)": data.inputExclCache,
-      Output: data.output,
-    },
+    { name: "Cache Read", value: data.cacheRead },
+    { name: "Input (excl. cache)", value: data.inputExclCache },
+    { name: "Output", value: data.output },
   ];
 
   return (
@@ -36,20 +38,20 @@ export function TokenBreakdownChart({ data }: Props) {
       </h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} layout="vertical">
-            <XAxis
-              type="number"
-              stroke="#71717a"
-              fontSize={11}
-              tickFormatter={(v) => formatTokens(v)}
-            />
-            <YAxis
-              type="category"
-              dataKey="name"
-              stroke="#71717a"
-              fontSize={12}
-              hide
-            />
+          <PieChart>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              innerRadius={55}
+              outerRadius={85}
+              dataKey="value"
+              animationDuration={1500}
+            >
+              {SEGMENTS.map((seg, index) => (
+                <Cell key={`cell-${index}`} fill={seg.color} />
+              ))}
+            </Pie>
             <Tooltip
               contentStyle={{
                 background: "#18181b",
@@ -57,31 +59,15 @@ export function TokenBreakdownChart({ data }: Props) {
                 borderRadius: "8px",
               }}
               labelStyle={{ color: "#fafafa" }}
-              formatter={(value) => [formatTokens(Number(value)), undefined]}
+              formatter={(value, name) => [
+                formatTokens(Number(value)),
+                String(name),
+              ]}
             />
             <Legend
               wrapperStyle={{ fontSize: "12px", color: "#a1a1aa" }}
             />
-            <Bar
-              dataKey="Cache Read"
-              stackId="tokens"
-              fill="#f97316"
-              animationDuration={1500}
-            />
-            <Bar
-              dataKey="Input (excl. cache)"
-              stackId="tokens"
-              fill="#fb923c"
-              animationDuration={1500}
-            />
-            <Bar
-              dataKey="Output"
-              stackId="tokens"
-              fill="#71717a"
-              radius={[0, 4, 4, 0]}
-              animationDuration={1500}
-            />
-          </BarChart>
+          </PieChart>
         </ResponsiveContainer>
       </div>
     </div>

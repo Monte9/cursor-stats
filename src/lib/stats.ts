@@ -13,6 +13,7 @@ export interface UsageSummary {
   byHour: { hour: number; requests: number }[];
   byHourInDay?: { hour: number; requests: number; cost: number }[];
   byKind: { kind: string; count: number }[];
+  byDayOfWeek: { day: string; requests: number; cost: number }[];
 
   tokenBreakdown: {
     cacheRead: number;
@@ -128,6 +129,23 @@ export function computeStats(data: CursorUsageRow[]): UsageSummary {
     .map(([kind, count]) => ({ kind, count }))
     .sort((a, b) => b.count - a.count);
 
+  // By day of week
+  const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const dowMap = new Map<number, { requests: number; cost: number }>();
+  for (let d = 0; d < 7; d++) dowMap.set(d, { requests: 0, cost: 0 });
+  for (const r of data) {
+    const dow = r.date.getDay();
+    const existing = dowMap.get(dow)!;
+    existing.requests++;
+    existing.cost += r.cost ?? 0;
+  }
+  // Reorder to start from Monday
+  const byDayOfWeek = [1, 2, 3, 4, 5, 6, 0].map((d) => ({
+    day: DAY_NAMES[d],
+    requests: dowMap.get(d)!.requests,
+    cost: Number(dowMap.get(d)!.cost.toFixed(2)),
+  }));
+
   // Token breakdown
   const tokenBreakdown = {
     cacheRead: data.reduce((sum, r) => sum + r.cacheRead, 0),
@@ -167,6 +185,7 @@ export function computeStats(data: CursorUsageRow[]): UsageSummary {
     byHour,
     byHourInDay,
     byKind,
+    byDayOfWeek,
     tokenBreakdown,
     avgCostPerRequest,
     mostUsedModel,

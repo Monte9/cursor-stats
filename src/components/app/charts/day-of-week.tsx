@@ -11,20 +11,18 @@ import {
 } from "recharts";
 
 interface Props {
-  byDay: { date: string; cost: number }[];
+  data: { day: string; requests: number; cost: number }[];
 }
 
-export function CostTimelineChart({ byDay }: Props) {
-  const data = byDay.map((d) => ({
-    label: d.date,
-    cost: Number(d.cost.toFixed(2)),
-  }));
-
+export function DayOfWeekChart({ data }: Props) {
   return (
     <div className="bg-zinc-900 border border-zinc-600 rounded-xl p-6 shadow-lg shadow-black/20">
-      <h3 className="text-lg font-semibold text-zinc-50 mb-4">
-        Cost Over Time
+      <h3 className="text-lg font-semibold text-zinc-50 mb-1">
+        Usage by Day of Week
       </h3>
+      <p className="text-zinc-500 text-xs mb-4">
+        Which days you code most
+      </p>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
@@ -34,9 +32,9 @@ export function CostTimelineChart({ byDay }: Props) {
               vertical={false}
             />
             <XAxis
-              dataKey="label"
+              dataKey="day"
               stroke="#71717a"
-              fontSize={11}
+              fontSize={12}
               tickLine={false}
               axisLine={false}
             />
@@ -45,7 +43,6 @@ export function CostTimelineChart({ byDay }: Props) {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v) => `$${v}`}
             />
             <Tooltip
               contentStyle={{
@@ -55,11 +52,10 @@ export function CostTimelineChart({ byDay }: Props) {
               }}
               labelStyle={{ color: "#fafafa" }}
               itemStyle={{ color: "#f97316" }}
-              formatter={(value) => [`$${value}`, "Cost"]}
               cursor={{ fill: "rgba(249, 115, 22, 0.08)" }}
             />
             <Bar
-              dataKey="cost"
+              dataKey="requests"
               fill="#f97316"
               radius={[4, 4, 0, 0]}
               animationDuration={1500}
