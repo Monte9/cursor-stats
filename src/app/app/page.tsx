@@ -101,6 +101,31 @@ function AppContent() {
         {/* Upload zone */}
         <UploadZone onUpload={handleUpload} />
 
+        {/* Privacy banner */}
+        <div className="w-full max-w-lg mt-6 px-4 py-3 bg-zinc-900/60 border border-zinc-800 rounded-lg flex items-start gap-3">
+          <svg
+            className="w-5 h-5 text-orange-500 mt-0.5 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
+          </svg>
+          <div>
+            <p className="text-zinc-300 text-sm font-medium">
+              Your data never leaves your browser
+            </p>
+            <p className="text-zinc-500 text-xs mt-0.5">
+              Your CSV is parsed entirely client-side. We never upload, store, or have access to your usage data.
+            </p>
+          </div>
+        </div>
+
         {/* Collapsible guide */}
         <div className="w-full max-w-lg mt-8">
           <button
