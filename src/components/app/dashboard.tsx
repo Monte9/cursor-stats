@@ -108,6 +108,7 @@ export function Dashboard({
   const handlePromptSubmit = useCallback(async (prompt: string) => {
     setIsPromptLoading(true);
     setPromptError(null);
+    setGeneratedChart(null); // Clear existing chart immediately
 
     try {
       const res = await fetch("/api/chart", {

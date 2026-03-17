@@ -36,7 +36,7 @@ export function PromptInput({ onSubmit, isLoading, error }: PromptInputProps) {
   };
 
   const handlePill = (prompt: string) => {
-    setValue(prompt);
+    setValue("");
     onSubmit(prompt);
   };
 
