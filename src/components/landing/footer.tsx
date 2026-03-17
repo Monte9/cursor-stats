@@ -24,9 +24,6 @@ export function Footer() {
           >
             GitHub
           </a>
-          <Link href="/app" className="hover:text-zinc-50 transition-colors">
-            Launch App
-          </Link>
         </div>
       </div>
     </footer>

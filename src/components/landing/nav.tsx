@@ -43,14 +43,6 @@ export function Nav() {
 
         {/* Right side */}
         <div className="flex items-center gap-4">
-          <a
-            href="https://github.com/ashokosnexus/cursor-stats"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-zinc-400 hover:text-zinc-50 text-sm transition-colors"
-          >
-            GitHub
-          </a>
           <Link
             href="/app"
             className="px-4 py-1.5 bg-orange-500 hover:bg-orange-400 text-zinc-950 text-sm font-semibold rounded-lg transition-colors"

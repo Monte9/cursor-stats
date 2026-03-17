@@ -56,6 +56,11 @@
 - Export chart as image (html2canvas or similar)
 - **Spec:** phase-4-visualization.md (TBD)
 
+### Phase 4.5: Data Persistence (Follow-up)
+- Store parsed CSV in `sessionStorage` so page refresh keeps data within the same tab
+- Clear on tab close (not `localStorage` — no long-term storage)
+- Enables back/forward navigation without re-upload
+
 ### Phase 5: Polish & Launch
 - OG image / Twitter card for social sharing
 - "Share my stats" (anonymized snapshot)
