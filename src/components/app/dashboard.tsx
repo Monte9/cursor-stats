@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { CursorUsageRow } from "@/lib/csv-parser";
 import { computeStats } from "@/lib/stats";
@@ -64,6 +64,7 @@ export function Dashboard({
   fileName,
 }: DashboardProps) {
   const stats = useMemo(() => computeStats(data), [data]);
+  const [showWarnings, setShowWarnings] = useState(false);
 
   const monthlyProjection = stats.totalCost * (30 / Math.max(1, stats.byDay.length));
 
@@ -99,33 +100,61 @@ export function Dashboard({
               </h1>
               {/* Warning indicator */}
               {warnings.length > 0 && (
-                <span
-                  className="text-lg cursor-help"
-                  title={warnings.join("\n")}
+                <button
+                  onClick={() => setShowWarnings((p) => !p)}
+                  className="flex items-center justify-center w-7 h-7 rounded-full bg-orange-500/10 hover:bg-orange-500/20 transition-colors"
                 >
-                  ⚠️
-                </span>
+                  <svg className="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </button>
               )}
             </div>
             <p className="text-zinc-400 text-sm mt-1">
               {formatDateOrdinal(stats.dateRange.start)} to {formatDateOrdinal(stats.dateRange.end)}
             </p>
-            {/* File reference */}
-            {fileName && (
-              <p className="text-zinc-600 text-xs mt-1 font-mono">
-                📄 {fileName}
-              </p>
+            {/* File reference + upload new */}
+            {!isDemo && (
+              <div className="flex items-center gap-2 mt-1">
+                {fileName && (
+                  <span className="text-zinc-600 text-xs font-mono">
+                    📄 {fileName}
+                  </span>
+                )}
+                <span className="text-zinc-700 text-xs">·</span>
+                <button
+                  onClick={onReset}
+                  className="text-orange-500/70 hover:text-orange-400 text-xs transition-colors"
+                >
+                  change file
+                </button>
+              </div>
             )}
           </div>
-          {!isDemo && (
-            <button
-              onClick={onReset}
-              className="mt-4 sm:mt-0 text-zinc-400 hover:text-zinc-50 text-sm transition-colors"
-            >
-              ← Upload new file
-            </button>
-          )}
         </div>
+
+        {/* Warning toast */}
+        {showWarnings && warnings.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 px-4 py-3 bg-orange-500/10 border border-orange-500/20 rounded-lg flex items-start justify-between"
+          >
+            <div>
+              {warnings.map((w, i) => (
+                <p key={i} className="text-orange-300/80 text-sm">
+                  {w}
+                </p>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowWarnings(false)}
+              className="text-orange-400/50 hover:text-orange-400 ml-4 text-lg leading-none"
+            >
+              ×
+            </button>
+          </motion.div>
+        )}
 
         {/* Cards grid */}
         <motion.div
