@@ -31,26 +31,21 @@ Natural language questions → dynamic charts via LLM. Claude 4.6 Sonnet via Ver
 
 ## Upcoming Phases
 
-### Phase 4: Chart Export + Sharing (Viral Loop)
-Make the glassmorphism chart cards downloadable and shareable.
+### Phase 4: Mobile & Responsive Polish
+Fix all mobile/tablet layout issues — horizontal overflow, text clipping, chart sizing, touch targets. Launch blocker since links are already being shared on Slack/mobile.
+**Spec:** [phase-4-mobile-polish.md](./phase-4-mobile-polish.md)
 
-**What this means:**
-- Small download icon on each chart card → saves as PNG (html2canvas or dom-to-image)
-- The watermark (`cursorstats.com`) is already there — becomes a viral loop
-- "Share your stats" — generates a shareable link or image collage
-- OG image generation for social cards (dynamic, showing key stats)
-
-**Why this matters:** Every shared chart card is free marketing. The macOS dots + watermark design was built for this.
-
-**Spec:** phase-4-export.md (TBD)
-
-### Phase 5: Polish & Launch
-- OG image / Twitter card (dynamic stats preview)
-- Mobile responsive audit (dashboard on phone)
-- Performance audit (bundle size, lazy loading charts)
-- SEO: sitemap, robots.txt, structured data
+### Phase 5: Launch
 - Buy + connect cursorstats.com domain
-- Launch post: share on X, Reddit r/cursor, HN Show
+- OG image / Twitter card (dynamic stats preview)
+- SEO: sitemap, robots.txt
+- Launch posts: X, Reddit r/cursor, HN Show, Cursor Discord
+
+### Phase 6: Chart Export + Sharing (Post-Launch)
+- Download icon on each chart card → saves as PNG
+- Watermark (`cursorstats.com`) already in place — viral loop
+- "Share your stats" — shareable image collage
+- OG image generation with dynamic stats
 
 ---
 
