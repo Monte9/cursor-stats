@@ -2,7 +2,7 @@
 
 > Visualize your Cursor AI usage patterns. Upload a CSV, ask questions, get interactive charts.
 
-**Repo:** [ashokosnexus/cursor-stats](https://github.com/ashokosnexus/cursor-stats) (private)
+**Repo:** [nexuslabsx/cursor-stats](https://github.com/nexuslabsx/cursor-stats) (private)
 **Live:** https://cursorstats.vercel.app
 **Stack:** Next.js 16, Tailwind CSS 4, Recharts, Framer Motion, Vercel AI SDK, pnpm
 **Domain:** cursorstats.com (pending purchase)
@@ -31,9 +31,9 @@ Natural language questions → dynamic charts via LLM. Claude 4.6 Sonnet via Ver
 
 ## Upcoming Phases
 
-### Phase 4: Mobile & Responsive Polish
-Fix all mobile/tablet layout issues — horizontal overflow, text clipping, chart sizing, touch targets. Launch blocker since links are already being shared on Slack/mobile.
-**Spec:** [phase-4-mobile-polish.md](./phase-4-mobile-polish.md)
+### Phase 4: Dashboard Bug Fixes
+Three real bugs found via live mobile testing: Recharts `ResponsiveContainer` fires with `width=-1` causing blank dashboard on initial load; React hydration error #418 from unpinned date locale/timezone; Y-axis model name clips first character on mobile.
+**Spec:** [phase-4-dashboard-bugs.md](./phase-4-dashboard-bugs.md)
 
 ### Phase 5: Launch
 - Buy + connect cursorstats.com domain
@@ -86,5 +86,5 @@ Fix all mobile/tablet layout issues — horizontal overflow, text clipping, char
 - **Community Leaderboard:** Opt-in public leaderboard — users upload CSV, see their dashboard, then choose to share stats under a display name. Ranked by total spend, token usage, streak length, etc. Requires accounts (auth TBD). Viral loop: "I'm in the top 10 Cursor spenders" shareable badges.
 - **Accounts + chart history:** Login-backed persistence so prompt-generated charts stack or are saved; revisit multiple LLM charts per session instead of single-slot UX.
 
-*Owner: Ash (ashokosnexus) · Collaborator: Monte*
-*Last updated: 2026-03-17*
+*Owner: Ash (nexuslabsx) · Collaborator: Monte*
+*Last updated: 2026-03-28*
