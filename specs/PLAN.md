@@ -31,20 +31,10 @@ Natural language questions → dynamic charts via LLM. Claude 4.6 Sonnet via Ver
 
 ## Upcoming Phases
 
-### Phase 4: Dashboard Bug Fixes
-Three real bugs found via live mobile testing: Recharts `ResponsiveContainer` fires with `width=-1` causing blank dashboard on initial load; React hydration error #418 from unpinned date locale/timezone; Y-axis model name clips first character on mobile.
-**Spec:** [phase-4-dashboard-bugs.md](./phase-4-dashboard-bugs.md)
-
-### Phase 5: Launch
-- Buy + connect cursorstats.com domain
-- OG image / Twitter card (dynamic stats preview)
-- SEO: sitemap, robots.txt
-- Launch posts: X, Reddit r/cursor, HN Show, Cursor Discord
-
-### Phase 6: Chart Export + Sharing (Post-Launch)
+### Phase 4: Sharing
 - Download icon on each chart card → saves as PNG
-- Watermark (`cursorstats.com`) already in place — viral loop
-- "Share your stats" — shareable image collage
+- Watermark (`cursorstats.com`) already in place — viral loop built in
+- "Share your stats" — shareable image collage of key stats
 - OG image generation with dynamic stats
 
 ---
@@ -88,3 +78,4 @@ Three real bugs found via live mobile testing: Recharts `ResponsiveContainer` fi
 
 *Owner: Ash (nexuslabsx) · Collaborator: Monte*
 *Last updated: 2026-03-28*
+
