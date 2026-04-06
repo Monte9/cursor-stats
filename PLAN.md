@@ -28,25 +28,10 @@ The best way to understand your Cursor AI usage. Upload your export, get a beaut
 
 ---
 
-## Phases
-
-### Phase 1: Mobile & Responsive Polish
-- Fix horizontal overflow, text clipping, chart sizing on mobile/tablet
-- Touch target improvements for interactive elements
-- Responsive chart card layout adjustments
-- Launch blocker — links are already being shared on Slack/mobile
-- Spec: `specs/phase-4-mobile-polish.md`
-
-### Phase 2: Launch
-- Buy + connect cursorstats.com domain
-- OG image / Twitter card (dynamic stats preview)
-- SEO: sitemap, robots.txt, meta descriptions
-- Launch posts: X, Reddit r/cursor, HN Show, Cursor Discord
-
----
-
 ## Backlog
 
+- **Mobile & responsive polish** — fix horizontal overflow, text clipping, chart sizing, touch targets, and chart card layout on mobile/tablet. Spec: `specs/phase-4-mobile-polish.md`
+- **Launch package** — buy + connect cursorstats.com, add an OG/Twitter card, ship basic SEO, and prep launch posts for X, Reddit, HN, and Cursor Discord
 - **Chart export** — download icon on each chart card → PNG. Watermark already in place for viral loop
 - **Share your stats** — shareable image collage of key stats for social posting
 - **Data persistence** — `sessionStorage` so page refresh keeps data within same tab
@@ -58,4 +43,4 @@ The best way to understand your Cursor AI usage. Upload your export, get a beaut
 
 ---
 
-*Updated: 2026-03-31*
+*Updated: 2026-04-06*
