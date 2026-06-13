@@ -3,6 +3,40 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { NextRequest, NextResponse } from "next/server";
 import { chartSpecSchema, ChartRequestPayload } from "@/lib/types";
 
+// This endpoint calls the Anthropic API, which costs money per request. The
+// repo and deployment are public, so these guards limit abuse.
+//
+// Rate limiting is in-memory (per warm serverless instance), so it caps casual
+// abuse and bursts but is not a distributed limit. For stronger guarantees, add
+// a Vercel WAF rule or a shared store (e.g. Upstash) keyed by IP.
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 15;
+const MAX_SUMMARY_CHARS = 100_000;
+
+const ipHits = new Map<string, number[]>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  // Opportunistic cleanup so the map can't grow unbounded across many IPs.
+  if (ipHits.size > 5000) {
+    for (const [key, times] of ipHits) {
+      if (times.every((t) => now - t >= RATE_LIMIT_WINDOW_MS)) ipHits.delete(key);
+    }
+  }
+  const recent = (ipHits.get(ip) ?? []).filter(
+    (t) => now - t < RATE_LIMIT_WINDOW_MS
+  );
+  recent.push(now);
+  ipHits.set(ip, recent);
+  return recent.length > RATE_LIMIT_MAX;
+}
+
+function getClientIp(req: NextRequest): string {
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0].trim();
+  return req.headers.get("x-real-ip") ?? "unknown";
+}
+
 const SYSTEM_PROMPT = `You are a data visualization analyst for CursorStats. Given a user's Cursor AI usage summary, generate a chart specification that answers their question.
 
 You must select from these data sources (pre-computed, real data):
@@ -51,6 +85,13 @@ Response: { "chartType": "horizontalBar", "dataSource": "byModel", "xKey": "mode
 
 export async function POST(req: NextRequest) {
   try {
+    if (isRateLimited(getClientIp(req))) {
+      return NextResponse.json(
+        { error: "Too many requests. Please slow down and try again shortly." },
+        { status: 429 }
+      );
+    }
+
     const body = (await req.json()) as ChartRequestPayload;
 
     // Validate prompt
@@ -65,6 +106,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Summary data is required." },
         { status: 400 }
+      );
+    }
+
+    // Cap the summary payload. Legitimate summaries are aggregated stats (a few
+    // KB); anything far larger is malformed or an attempt to inflate the prompt
+    // sent to the LLM.
+    if (JSON.stringify(body.summary).length > MAX_SUMMARY_CHARS) {
+      return NextResponse.json(
+        { error: "Summary payload is too large." },
+        { status: 413 }
       );
     }
 

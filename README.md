@@ -2,9 +2,11 @@
 
 Visualize your Cursor AI usage patterns. Upload your usage CSV, ask questions in natural language, get interactive charts.
 
-## Features (Planned)
+**[Live demo →](https://cursorstats.vercel.app)**
 
-- 📤 **Upload** — Drop your Cursor usage CSV export
+## Features
+
+- 📤 **Upload** — Drop your Cursor usage CSV export (parsed entirely in your browser)
 - 💬 **Ask** — Natural language queries about your usage
 - 📊 **Visualize** — Interactive, animated charts that answer your questions
 
@@ -16,18 +18,26 @@ Visualize your Cursor AI usage patterns. Upload your usage CSV, ask questions in
 
 ## Tech Stack
 
-- Next.js 15 (App Router)
-- Tailwind CSS + shadcn/ui
+- Next.js 16 (App Router)
+- Tailwind CSS 4
 - Recharts + Framer Motion
 - Vercel AI SDK + Anthropic Claude
 
 ## Development
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
+
+The prompt → chart feature calls the Anthropic API. To use it locally, add your key to `.env.local`:
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+The build itself (`pnpm build`) does not require any environment variables.
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
