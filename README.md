@@ -2,7 +2,13 @@
 
 Visualize your Cursor AI usage patterns. Upload your usage CSV, ask questions in natural language, get interactive charts.
 
-**[Live demo →](https://cursorstats.vercel.app)**
+[![CursorStats dashboard](docs/screenshots/dashboard.png)](https://cursorstats.vercel.app)
+
+## Why CursorStats?
+
+Cursor gives you a usage export, but it's just a CSV — a wall of rows that's nearly impossible to read. I kept wondering where my spend was actually going: which models cost the most, when I code the hardest, how much of my token usage was just cache reads. So I built CursorStats to turn that export into something I could actually *see*.
+
+The twist is that you don't have to know what to chart. Ask a question in plain English — "what's my most expensive model?", "when am I most active?" — and it builds the chart for you. Your CSV is parsed entirely in your browser; only aggregated stats (never raw rows) are sent to the model to decide which chart to draw, so your usage data never leaves your machine.
 
 ## Features
 
